@@ -826,9 +826,11 @@ function handleSetWin(){
     state.theirSets++;
   }
 
-  if(isMatchWon()){
-    return;
-  }
+ if(isMatchWon()){
+  alert("PARTITA FINITA");
+  openMatchEndModal();
+  return;
+}
 
   state.setNumber++;
 
