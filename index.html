@@ -885,24 +885,25 @@ function render(){
 }
 
 function manualPoint(side){
-  
-if(isMatchWon()){
-  return;
-}
+
+  if(
+    state.ourSets >= setsNeededToWin() ||
+    state.theirSets >= setsNeededToWin()
+  ){
+    return;
+  }
+
   const before =
     snapshot();
 
   if(side === "our"){
-
     state.ourScore++;
 
     pushHistory(
       "Punto NOI",
       before
     );
-
   }else{
-
     state.theirScore++;
 
     pushHistory(
@@ -910,6 +911,7 @@ if(isMatchWon()){
       before
     );
   }
+
   handleSetWin();
   render();
 }
