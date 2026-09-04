@@ -63,6 +63,13 @@
       font-weight:900;
       margin-bottom:20px;
     }
+
+    .match-end-sets{
+      margin-bottom:20px;
+      font-size:16px;
+      line-height:1.8;
+    }
+    
      .topbar{
       display:flex;
       justify-content:space-between;
@@ -604,7 +611,9 @@
     <div id="matchEndScore" class="match-end-score">
       2 - 1
     </div>
-
+    
+    <div id="matchEndSets" class="match-end-sets"></div>
+    
     <div class="sheet-actions">
       <button onclick="closeMatchEndModal()">
         Chiudi
@@ -1168,6 +1177,16 @@ function openMatchEndModal(){
 
   const weWon =
     state.ourSets > state.theirSets;
+
+  const setsText =
+  state.setResults
+    .map(result =>
+      `Set ${result.set} · ${result.ourScore} - ${result.theirScore}`
+    )
+    .join("<br>");
+
+document.getElementById("matchEndSets").innerHTML =
+  setsText;
 
   document.getElementById("matchEndTitle").textContent =
     weWon
