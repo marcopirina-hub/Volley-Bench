@@ -918,9 +918,12 @@ function manualPoint(side){
 
 function addStat(type){
 
-  if(isMatchWon()){
-    return;
-  }
+ if(
+  state.ourSets >= setsNeededToWin() ||
+  state.theirSets >= setsNeededToWin()
+){
+  return;
+}
   
   const player =
     state.players.find(
