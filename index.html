@@ -379,7 +379,9 @@
         <div class="small" id="matchFormatLabel">
           Best of 3
         </div>
-
+        
+        <div class="small" id="setTargetLabel"></div>
+        
         <div class="set-score">
           <span id="ourSets">0</span> -
           <span id="theirSets">0</span>
@@ -706,7 +708,26 @@ function pushHistory(label,before){
     state.history.length = 50;
   }
 }
+function setsNeededToWin(){
 
+  return state.matchFormat === 5
+    ? 3
+    : 2;
+}
+
+function currentSetTarget(){
+
+  const needed =
+    setsNeededToWin();
+
+  const isDecidingSet =
+    state.ourSets === needed - 1 &&
+    state.theirSets === needed - 1;
+
+  return isDecidingSet
+    ? 15
+    : 25;
+}
 function render(){
 
   document.getElementById("ourScore").textContent =
@@ -726,6 +747,9 @@ function render(){
 
   document.getElementById("matchFormatLabel").textContent =
     `Best of ${state.matchFormat || 3}`;
+  
+  document.getElementById("setTargetLabel").textContent =
+  `Set a ${currentSetTarget()}`;
 
   const playersContainer =
     document.getElementById("players");
