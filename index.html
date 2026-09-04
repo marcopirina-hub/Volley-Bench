@@ -885,7 +885,10 @@ function render(){
 }
 
 function manualPoint(side){
-
+  
+if(isMatchWon()){
+  return;
+}
   const before =
     snapshot();
 
@@ -913,6 +916,10 @@ function manualPoint(side){
 
 function addStat(type){
 
+  if(isMatchWon()){
+    return;
+  }
+  
   const player =
     state.players.find(
       player =>
