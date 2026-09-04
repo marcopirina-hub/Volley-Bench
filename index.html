@@ -353,6 +353,8 @@
           SET <span id="setNumber">1</span>
         </div>
 
+        <div class="small" id="matchFormatLabel"></div>
+        
         <div class="set-score">
           <span id="ourSets">0</span> - <span id="theirSets">0</span>
         </div>
@@ -639,6 +641,9 @@ function render(){
 
   document.getElementById("setNumber").textContent =
     state.setNumber;
+  
+  document.getElementById("matchFormatLabel").textContent =
+  `Best of ${state.matchFormat || 3}`;
 
   const players =
     document.getElementById("players");
