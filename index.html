@@ -95,7 +95,7 @@
     }
 
     .set-info{
-      min-width:80px;
+      min-width:90px;
     }
 
     .set-number{
@@ -107,6 +107,7 @@
     .set-score{
       font-size:26px;
       font-weight:900;
+      margin-top:3px;
     }
 
     .score-controls{
@@ -310,6 +311,26 @@
       font-weight:900;
     }
 
+    .format-options{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .format-btn{
+      padding:22px 12px;
+      border-radius:16px;
+      background:var(--panel2);
+      font-weight:900;
+      font-size:18px;
+    }
+
+    .format-btn.active{
+      outline:3px solid var(--accent);
+      background:#0c4a6e;
+    }
+
     @media (min-width:700px){
       .players{
         grid-template-columns:repeat(3,1fr);
@@ -323,6 +344,7 @@
 </head>
 
 <body>
+
 <div class="app">
 
   <div class="topbar">
@@ -349,15 +371,20 @@
       </div>
 
       <div class="set-info">
+
         <div class="set-number">
           SET <span id="setNumber">1</span>
         </div>
 
-        <div class="small" id="matchFormatLabel"></div>
-        
-        <div class="set-score">
-          <span id="ourSets">0</span> - <span id="theirSets">0</span>
+        <div class="small" id="matchFormatLabel">
+          Best of 3
         </div>
+
+        <div class="set-score">
+          <span id="ourSets">0</span> -
+          <span id="theirSets">0</span>
+        </div>
+
       </div>
 
       <div>
@@ -368,13 +395,21 @@
     </div>
 
     <div class="score-controls">
-      <button class="score-btn ours" onclick="manualPoint('our')">
+
+      <button
+        class="score-btn ours"
+        onclick="manualPoint('our')"
+      >
         + Punto noi
       </button>
 
-      <button class="score-btn theirs" onclick="manualPoint('their')">
+      <button
+        class="score-btn theirs"
+        onclick="manualPoint('their')"
+      >
         + Punto loro
       </button>
+
     </div>
 
     <div class="toolbar">
@@ -386,8 +421,11 @@
   </div>
 
   <div class="panel">
+
     <h2>Giocatori in campo</h2>
+
     <div id="players" class="players"></div>
+
   </div>
 
   <div class="panel">
@@ -446,19 +484,17 @@
   </div>
 
   <div class="panel">
-
     <h2>Cronologia</h2>
-
     <div id="history" class="history"></div>
-
   </div>
 
   <div class="panel footer-actions">
     <button onclick="newSet()">Nuovo set</button>
-    <button class="danger" onclick="resetMatch()">Nuova partita</button>
+    <button class="danger" onclick="openNewMatchModal()">Nuova partita</button>
   </div>
 
 </div>
+
 
 <div id="rosterModal" class="modal">
 
@@ -483,9 +519,62 @@
 
 </div>
 
+
+<div id="newMatchModal" class="modal">
+
+  <div class="sheet">
+
+    <h3>Nuova partita</h3>
+
+    <div class="small">
+      Scegli il formato della partita.
+    </div>
+
+    <div class="format-options">
+
+      <button
+        id="format3Button"
+        class="format-btn"
+        onclick="selectMatchFormat(3)"
+      >
+        BEST OF 3
+      </button>
+
+      <button
+        id="format5Button"
+        class="format-btn"
+        onclick="selectMatchFormat(5)"
+      >
+        BEST OF 5
+      </button>
+
+    </div>
+
+    <div class="sheet-actions">
+
+      <button onclick="closeNewMatchModal()">
+        Annulla
+      </button>
+
+      <button
+        onclick="startNewMatch()"
+        style="background:#0369a1"
+      >
+        Inizia partita
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
 <script>
 
-const STORAGE_KEY = "volleyBenchStateV2";
+const STORAGE_KEY = "volleyBenchStateV3";
+
+let pendingMatchFormat = 3;
 
 const defaultPlayers = [
   {num:1,name:"Giocatore 1"},
@@ -509,6 +598,7 @@ const statLabels = {
 };
 
 function emptyStats(){
+
   return {
     point:0,
     ace:0,
@@ -535,9 +625,9 @@ function createInitialState(){
     theirTimeouts:0,
     selectedPlayer:null,
 
-    players:defaultPlayers.map((p,i)=>({
-      id:Date.now()+i,
-      ...p,
+    players:defaultPlayers.map((player,index)=>({
+      id:Date.now()+index,
+      ...player,
       stats:emptyStats()
     })),
 
@@ -549,17 +639,23 @@ let state;
 
 try{
 
-  const saved = localStorage.getItem(STORAGE_KEY);
+  const saved =
+    localStorage.getItem(STORAGE_KEY);
 
-  state = saved
-    ? JSON.parse(saved)
-    : createInitialState();
+  state =
+    saved
+      ? JSON.parse(saved)
+      : createInitialState();
 
 }catch(error){
 
-  console.error("Errore caricamento salvataggio:",error);
+  console.error(
+    "Errore caricamento salvataggio:",
+    error
+  );
 
-  state = createInitialState();
+  state =
+    createInitialState();
 }
 
 function save(){
@@ -580,14 +676,6 @@ function save(){
   }
 }
 
-/*
-  IMPORTANTE:
-  snapshot NON copia la cronologia.
-
-  In questo modo ogni evento salva soltanto
-  lo stato necessario per l'Undo e non crea
-  copie ricorsive gigantesche.
-*/
 function snapshot(){
 
   const {
@@ -614,12 +702,6 @@ function pushHistory(label,before){
     before
   });
 
-  /*
-    Manteniamo solo gli ultimi 50 eventi.
-
-    Più che sufficienti durante una partita
-    ed evita di gonfiare inutilmente il browser.
-  */
   if(state.history.length > 50){
     state.history.length = 50;
   }
@@ -641,14 +723,14 @@ function render(){
 
   document.getElementById("setNumber").textContent =
     state.setNumber;
-  
-  document.getElementById("matchFormatLabel").textContent =
-  `Best of ${state.matchFormat || 3}`;
 
-  const players =
+  document.getElementById("matchFormatLabel").textContent =
+    `Best of ${state.matchFormat || 3}`;
+
+  const playersContainer =
     document.getElementById("players");
 
-  players.innerHTML = "";
+  playersContainer.innerHTML = "";
 
   state.players
     .slice(0,6)
@@ -697,18 +779,16 @@ function render(){
         </div>
       `;
 
-      players.appendChild(button);
-
+      playersContainer.appendChild(button);
     });
 
   const selected =
     state.players.find(
-      p => p.id === state.selectedPlayer
+      player =>
+        player.id === state.selectedPlayer
     );
 
-  document.getElementById(
-    "selectedText"
-  ).textContent =
+  document.getElementById("selectedText").textContent =
     selected
       ? `#${selected.num} ${selected.name}`
       : "Seleziona un giocatore";
@@ -721,7 +801,8 @@ function render(){
 
 function manualPoint(side){
 
-  const before = snapshot();
+  const before =
+    snapshot();
 
   if(side === "our"){
 
@@ -740,7 +821,6 @@ function manualPoint(side){
       "Punto LORO",
       before
     );
-
   }
 
   render();
@@ -750,7 +830,8 @@ function addStat(type){
 
   const player =
     state.players.find(
-      p => p.id === state.selectedPlayer
+      player =>
+        player.id === state.selectedPlayer
     );
 
   if(!player){
@@ -762,14 +843,11 @@ function addStat(type){
     return;
   }
 
-  const before = snapshot();
+  const before =
+    snapshot();
 
   player.stats[type]++;
 
-  /*
-    Eventi che assegnano automaticamente
-    il punto alla nostra squadra.
-  */
   if(
     type === "point" ||
     type === "ace" ||
@@ -778,10 +856,6 @@ function addStat(type){
     state.ourScore++;
   }
 
-  /*
-    Errori che assegnano automaticamente
-    il punto agli avversari.
-  */
   if(
     type === "serveError" ||
     type === "attackError" ||
@@ -800,7 +874,8 @@ function addStat(type){
 
 function timeout(side){
 
-  const before = snapshot();
+  const before =
+    snapshot();
 
   if(side === "our"){
 
@@ -819,7 +894,6 @@ function timeout(side){
       `Timeout LORO (${state.theirTimeouts})`,
       before
     );
-
   }
 
   render();
@@ -867,7 +941,8 @@ function newSet(){
     }
   }
 
-  const before = snapshot();
+  const before =
+    snapshot();
 
   if(
     state.ourScore >
@@ -899,50 +974,55 @@ function newSet(){
   render();
 }
 
-function resetMatch(){
+function openNewMatchModal(){
 
-  const choice = prompt(
-    "Formato partita:\n\nScrivi 3 per Best of 3\nScrivi 5 per Best of 5",
-    state.matchFormat || 3
+  pendingMatchFormat =
+    state.matchFormat || 3;
+
+  updateFormatButtons();
+
+  document
+    .getElementById("newMatchModal")
+    .classList
+    .add("open");
+}
+
+function closeNewMatchModal(){
+
+  document
+    .getElementById("newMatchModal")
+    .classList
+    .remove("open");
+}
+
+function selectMatchFormat(format){
+
+  pendingMatchFormat =
+    format;
+
+  updateFormatButtons();
+}
+
+function updateFormatButtons(){
+
+  const button3 =
+    document.getElementById("format3Button");
+
+  const button5 =
+    document.getElementById("format5Button");
+
+  button3.classList.toggle(
+    "active",
+    pendingMatchFormat === 3
   );
 
-  if(choice === null){
-    return;
-  }
-
-  const format = Number(choice);
-
-  if(format !== 3 && format !== 5){
-    alert("Scegli 3 oppure 5.");
-    return;
-  }
-
-  const existingPlayers = state.players;
-
-  state = {
-    ourScore:0,
-    theirScore:0,
-    ourSets:0,
-    theirSets:0,
-    setNumber:1,
-    matchFormat:format,
-    ourTimeouts:0,
-    theirTimeouts:0,
-    selectedPlayer:null,
-
-    players:existingPlayers.map(
-      player=>({
-        ...player,
-        stats:emptyStats()
-      })
-    ),
-
-    history:[]
-  };
-
-  save();
-  render();
+  button5.classList.toggle(
+    "active",
+    pendingMatchFormat === 5
+  );
 }
+
+function startNewMatch(){
 
   const existingPlayers =
     state.players;
@@ -953,6 +1033,7 @@ function resetMatch(){
     ourSets:0,
     theirSets:0,
     setNumber:1,
+    matchFormat:pendingMatchFormat,
     ourTimeouts:0,
     theirTimeouts:0,
     selectedPlayer:null,
@@ -967,6 +1048,8 @@ function resetMatch(){
     history:[]
   };
 
+  closeNewMatchModal();
+
   save();
   render();
 }
@@ -974,9 +1057,7 @@ function resetMatch(){
 function renderStats(){
 
   const container =
-    document.getElementById(
-      "statsTable"
-    );
+    document.getElementById("statsTable");
 
   container.innerHTML =
     state.players
@@ -1027,9 +1108,7 @@ function renderStats(){
 function renderHistory(){
 
   const container =
-    document.getElementById(
-      "history"
-    );
+    document.getElementById("history");
 
   if(!state.history.length){
 
@@ -1063,9 +1142,7 @@ function renderHistory(){
 function openRoster(){
 
   const container =
-    document.getElementById(
-      "rosterInputs"
-    );
+    document.getElementById("rosterInputs");
 
   container.innerHTML = "";
 
@@ -1078,9 +1155,7 @@ function openRoster(){
       };
 
     const row =
-      document.createElement(
-        "div"
-      );
+      document.createElement("div");
 
     row.className =
       "form-row";
@@ -1104,9 +1179,7 @@ function openRoster(){
   }
 
   document
-    .getElementById(
-      "rosterModal"
-    )
+    .getElementById("rosterModal")
     .classList
     .add("open");
 }
@@ -1114,9 +1187,7 @@ function openRoster(){
 function closeRoster(){
 
   document
-    .getElementById(
-      "rosterModal"
-    )
+    .getElementById("rosterModal")
     .classList
     .remove("open");
 }
@@ -1129,17 +1200,13 @@ function saveRoster(){
 
     const num =
       document
-        .getElementById(
-          `num-${i}`
-        )
+        .getElementById(`num-${i}`)
         .value
         .trim();
 
     const name =
       document
-        .getElementById(
-          `name-${i}`
-        )
+        .getElementById(`name-${i}`)
         .value
         .trim();
 
@@ -1181,9 +1248,8 @@ function saveRoster(){
 
   const selectedStillExists =
     state.players.find(
-      p =>
-        p.id ===
-        state.selectedPlayer
+      player =>
+        player.id === state.selectedPlayer
     );
 
   if(!selectedStillExists){
@@ -1197,5 +1263,6 @@ function saveRoster(){
 render();
 
 </script>
+
 </body>
 </html>
