@@ -901,14 +901,48 @@ function newSet(){
 
 function resetMatch(){
 
-  const confirmReset =
-    confirm(
-      "Azzerare completamente la partita?"
-    );
+  const choice = prompt(
+    "Formato partita:\n\nScrivi 3 per Best of 3\nScrivi 5 per Best of 5",
+    state.matchFormat || 3
+  );
 
-  if(!confirmReset){
+  if(choice === null){
     return;
   }
+
+  const format = Number(choice);
+
+  if(format !== 3 && format !== 5){
+    alert("Scegli 3 oppure 5.");
+    return;
+  }
+
+  const existingPlayers = state.players;
+
+  state = {
+    ourScore:0,
+    theirScore:0,
+    ourSets:0,
+    theirSets:0,
+    setNumber:1,
+    matchFormat:format,
+    ourTimeouts:0,
+    theirTimeouts:0,
+    selectedPlayer:null,
+
+    players:existingPlayers.map(
+      player=>({
+        ...player,
+        stats:emptyStats()
+      })
+    ),
+
+    history:[]
+  };
+
+  save();
+  render();
+}
 
   const existingPlayers =
     state.players;
