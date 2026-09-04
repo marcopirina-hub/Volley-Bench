@@ -728,6 +728,49 @@ function currentSetTarget(){
     ? 15
     : 25;
 }
+  function isSetWon(){
+
+  const target =
+    currentSetTarget();
+
+  const maxScore =
+    Math.max(
+      state.ourScore,
+      state.theirScore
+    );
+
+  const difference =
+    Math.abs(
+      state.ourScore -
+      state.theirScore
+    );
+
+  return (
+    maxScore >= target &&
+    difference >= 2
+  );
+}
+  function handleSetWin(){
+
+  if(!isSetWon()){
+    return;
+  }
+
+  if(state.ourScore > state.theirScore){
+    state.ourSets++;
+  }else{
+    state.theirSets++;
+  }
+
+  state.setNumber++;
+
+  state.ourScore = 0;
+  state.theirScore = 0;
+
+  state.ourTimeouts = 0;
+  state.theirTimeouts = 0;
+}
+  
 function render(){
 
   document.getElementById("ourScore").textContent =
@@ -846,7 +889,7 @@ function manualPoint(side){
       before
     );
   }
-
+  handleSetWin();
   render();
 }
 
@@ -892,7 +935,7 @@ function addStat(type){
     `#${player.num} ${player.name} · ${statLabels[type]}`,
     before
   );
-
+  handleSetWin();
   render();
 }
 
