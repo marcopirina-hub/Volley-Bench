@@ -672,9 +672,11 @@ function createInitialState(){
     theirSets:0,
     setNumber:1,
     matchFormat:3,
+    setResults:[],
     ourTimeouts:0,
     theirTimeouts:0,
     selectedPlayer:null,
+
 
     players:defaultPlayers.map((player,index)=>({
       id:Date.now()+index,
@@ -819,7 +821,13 @@ function handleSetWin(){
   if(!isSetWon()){
     return;
   }
-
+  
+  state.setResults.push({
+    set:state.setNumber,
+    ourScore:state.ourScore,
+    theirScore:state.theirScore
+});
+  
   if(state.ourScore > state.theirScore){
     state.ourSets++;
   }else{
@@ -1222,6 +1230,7 @@ function startNewMatch(){
     theirSets:0,
     setNumber:1,
     matchFormat:pendingMatchFormat,
+    setResults:[],
     ourTimeouts:0,
     theirTimeouts:0,
     selectedPlayer:null,
