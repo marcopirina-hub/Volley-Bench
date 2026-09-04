@@ -760,7 +760,11 @@ function currentSetTarget(){
     difference >= 2
   );
 }
- function handleSetWin(){
+function handleSetWin(){
+
+  if(isMatchWon()){
+    return;
+  }
 
   if(!isSetWon()){
     return;
