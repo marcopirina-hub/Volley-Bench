@@ -611,7 +611,7 @@
       </button>
 
       <button
-        onclick="openNewMatchModal()"
+        onclick="restartFromMatchEnd()"
         style="background:#0369a1"
       >
         Nuova partita
@@ -840,6 +840,11 @@ function handleSetWin(){
   state.theirTimeouts = 0;
 }
   
+  function restartFromMatchEnd(){
+
+  closeMatchEndModal();
+  openNewMatchModal();
+}
 function render(){
 
   const matchOver =
