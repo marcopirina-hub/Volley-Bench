@@ -714,7 +714,17 @@ function setsNeededToWin(){
     ? 3
     : 2;
 }
+function isMatchWon(){
 
+  const needed =
+    setsNeededToWin();
+
+  return (
+    state.ourSets >= needed ||
+    state.theirSets >= needed
+  );
+}
+  
 function currentSetTarget(){
 
   const needed =
@@ -750,7 +760,7 @@ function currentSetTarget(){
     difference >= 2
   );
 }
-  function handleSetWin(){
+ function handleSetWin(){
 
   if(!isSetWon()){
     return;
@@ -760,6 +770,10 @@ function currentSetTarget(){
     state.ourSets++;
   }else{
     state.theirSets++;
+  }
+
+  if(isMatchWon()){
+    return;
   }
 
   state.setNumber++;
