@@ -811,9 +811,10 @@ function currentSetTarget(){
 }
 function handleSetWin(){
 
-  if(isMatchWon()){
-    return;
-  }
+ if(isMatchWon()){
+  openMatchEndModal();
+  return;
+}
 
   if(!isSetWon()){
     return;
@@ -1149,7 +1150,33 @@ function closeNewMatchModal(){
     .classList
     .remove("open");
 }
+function openMatchEndModal(){
 
+  const weWon =
+    state.ourSets > state.theirSets;
+
+  document.getElementById("matchEndTitle").textContent =
+    weWon
+      ? "VITTORIA"
+      : "SCONFITTA";
+
+  document.getElementById("matchEndScore").textContent =
+    `${state.ourSets} - ${state.theirSets}`;
+
+  document
+    .getElementById("matchEndModal")
+    .classList
+    .add("open");
+}
+
+function closeMatchEndModal(){
+
+  document
+    .getElementById("matchEndModal")
+    .classList
+    .remove("open");
+}
+  
 function selectMatchFormat(format){
 
   pendingMatchFormat =
