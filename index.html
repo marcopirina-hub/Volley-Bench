@@ -81,7 +81,15 @@
       align-items:center;
       text-align:center;
     }
-
+    
+    .match-status{
+      margin-top:8px;
+      font-weight:900;
+      font-size:18px;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+}
+    
     .team-name{
       font-weight:800;
       font-size:18px;
@@ -386,6 +394,7 @@
           <span id="ourSets">0</span> -
           <span id="theirSets">0</span>
         </div>
+        <div id="matchStatus" class="match-status"></div>
 
       </div>
 
@@ -790,6 +799,15 @@ function handleSetWin(){
 }
   
 function render(){
+
+  const matchOver =
+  state.ourSets >= setsNeededToWin() ||
+  state.theirSets >= setsNeededToWin();
+
+document.getElementById("matchStatus").textContent =
+  matchOver
+    ? "PARTITA TERMINATA"
+    : "";
 
   document.getElementById("ourScore").textContent =
     state.ourScore;
