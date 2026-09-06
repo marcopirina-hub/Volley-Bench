@@ -5,199 +5,4658 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0b1020" />
   <title>Volley Bench V5</title>
+
   <style>
     :root{
       --bg:#0b1020;--panel:#151c2f;--panel2:#202a42;--text:#f8fafc;--muted:#94a3b8;
       --accent:#38bdf8;--good:#15803d;--bad:#991b1b;--info:#0369a1;--warn:#b45309;
       --line:#334155;
     }
+
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-    body{margin:0;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);padding-bottom:90px}
+
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding-bottom:90px
+    }
+
     button,input,select{font:inherit}
     button{border:0;cursor:pointer;color:var(--text);touch-action:manipulation}
-    input,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:#fff;padding:12px;border-radius:10px}
+
+    input,select{
+      width:100%;
+      background:var(--panel2);
+      border:1px solid var(--line);
+      color:#fff;
+      padding:12px;
+      border-radius:10px
+    }
+
     .app{max-width:900px;margin:auto;padding:14px}
-    .screen{display:none}.screen.active{display:block}
-    .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
-    .brand{font-size:24px;font-weight:950}.subtitle,.small{color:var(--muted);font-size:13px}
-    .panel{background:var(--panel);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
-    .home-logo{font-size:34px;font-weight:1000;text-align:center;padding:40px 12px 28px}.home-logo span{display:block;font-size:14px;color:var(--muted);font-weight:600;margin-top:6px}
-    .menu{display:grid;gap:12px}.menu button,.wide-btn{padding:18px;border-radius:16px;background:var(--info);font-weight:900;font-size:18px;width:100%}
-    .menu button.secondary,.wide-btn.secondary{background:var(--panel2)}.wide-btn.good{background:var(--good)}.wide-btn.bad{background:var(--bad)}
-    .icon-btn{background:var(--panel2);padding:10px 12px;border-radius:12px;font-weight:800}
-    .scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;text-align:center}
-    .team-name{font-weight:900;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.score{font-size:62px;font-weight:1000;line-height:1}
-    .set-info{min-width:98px}.set-number{font-size:13px;color:var(--muted)}.set-score{font-size:26px;font-weight:950;margin-top:4px}.match-status{margin-top:6px;font-weight:950;font-size:13px;text-transform:uppercase;color:#fbbf24}
-    .score-controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}.score-controls button{padding:15px 8px;border-radius:14px;font-weight:900}.ours{background:#0f766e}.theirs{background:#7f1d1d}.undo{background:var(--panel2)}
-    .timeout-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.timeout-controls button{padding:12px;border-radius:12px;background:var(--panel2);font-weight:800}
-    .event-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.event-btn{min-height:70px;border-radius:14px;padding:10px 6px;font-weight:900}.event-btn.good{background:#14532d}.event-btn.bad{background:#7f1d1d}.event-btn.neutral{background:#075985}
-    .live-bottom{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;position:sticky;bottom:8px;z-index:20;background:rgba(11,16,32,.92);padding:8px;border-radius:16px;backdrop-filter:blur(8px)}.live-bottom button{background:var(--panel2);border-radius:12px;padding:11px 4px;font-size:12px;font-weight:850}
-    .danger-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.danger-row button{padding:13px;border-radius:12px;background:var(--panel2);font-weight:850}.danger-row .danger{background:#7f1d1d}
-    .list{display:flex;flex-direction:column;gap:8px}.card{background:var(--panel2);padding:12px;border-radius:14px}.clickable{cursor:pointer}.card-title{font-weight:900}.card-meta{font-size:13px;color:var(--muted);margin-top:4px}
-    .row{display:flex;gap:8px;align-items:center}.row>*{min-width:0}.grow{flex:1}.split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .section-title{font-size:18px;font-weight:950;margin:4px 0 12px}.empty{color:var(--muted);padding:18px;text-align:center}
-    .modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:flex-end;justify-content:center;z-index:100}.modal.open{display:flex}.sheet{width:100%;max-width:700px;background:#111827;border-radius:22px 22px 0 0;padding:18px;max-height:92vh;overflow:auto}.sheet h3{margin-top:0}.sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.sheet-actions button{padding:14px;border-radius:12px;background:var(--panel2);font-weight:900}.sheet-actions .primary{background:var(--info)}
-    .format-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.format-btn{padding:20px 12px;border-radius:14px;background:var(--panel2);font-weight:900}.format-btn.active{outline:3px solid var(--accent);background:#0c4a6e}
-    .form-group{margin-bottom:12px}.form-group label{display:block;margin-bottom:6px;font-size:13px;color:var(--muted)}
-    .picker-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.picker{background:var(--panel2);padding:14px;border-radius:14px;text-align:left}.picker strong{display:block}.picker span{font-size:12px;color:var(--muted)}
-    .timeout-banner{display:none;position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:200;background:#111827;border:2px solid var(--accent);border-radius:18px;padding:12px 18px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.45)}.timeout-banner.open{display:block}.timeout-seconds{font-size:34px;font-weight:1000}
-    .roster-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}.roster-zone{background:var(--panel2);border-radius:14px;padding:10px;min-height:180px}.roster-zone h4{margin:0 0 8px}.roster-player{background:#111827;border:1px solid var(--line);border-radius:11px;padding:10px;margin-bottom:7px;cursor:grab}.roster-player.dragging{opacity:.5}.roster-player .small{pointer-events:none}
-    .team-row{display:flex;gap:8px;align-items:center}.team-row button:first-child{flex:1;text-align:left}.delete-mini{background:#7f1d1d;padding:10px;border-radius:10px}
-    .check-list{display:flex;flex-direction:column;gap:7px}.check-item{display:flex;align-items:center;gap:10px;background:var(--panel2);padding:10px;border-radius:10px}.check-item input{width:auto}
-    .new-player-row{display:grid;grid-template-columns:80px 1fr auto;gap:7px;margin-top:8px}.new-player-row button{background:var(--good);border-radius:10px;padding:0 13px;font-weight:900}
-    .stats-hero{text-align:center}.stats-result{font-size:38px;font-weight:1000}.stats-sets{color:var(--muted);line-height:1.7;margin-top:8px}.stat-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.metric{background:var(--panel2);border-radius:12px;padding:12px;text-align:center}.metric b{display:block;font-size:24px}.player-stat{background:var(--panel2);border-radius:12px;padding:12px;margin-bottom:8px}.player-stat-title{font-weight:900;margin-bottom:6px}.stats-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stats-actions button{padding:12px 6px;border-radius:12px;background:var(--panel2);font-weight:800}
-    .event{background:var(--panel2);padding:10px 12px;border-radius:12px;display:flex;justify-content:space-between;gap:10px;font-size:14px}
-    .match-end{text-align:center}.match-end-title{font-size:32px;font-weight:1000}.match-end-score{font-size:48px;font-weight:1000;margin:8px 0}
-    @media(min-width:700px){.event-grid{grid-template-columns:repeat(5,1fr)}.picker-grid{grid-template-columns:repeat(3,1fr)}.stat-summary{grid-template-columns:repeat(4,1fr)}}
-    @media(max-width:430px){.score{font-size:52px}.event-grid{grid-template-columns:repeat(3,1fr)}.roster-columns{grid-template-columns:1fr 1fr}.team-name{font-size:14px}}
-    @media print{body{background:white;color:black}.app>*:not(#screen-stats){display:none!important}#screen-stats{display:block!important}.topbar button,.stats-actions{display:none!important}.panel,.player-stat,.metric{box-shadow:none;border:1px solid #bbb;background:white;color:black}.small,.card-meta,.stats-sets{color:#555}}
+
+    .screen{display:none}
+    .screen.active{display:block}
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:14px
+    }
+
+    .brand{font-size:24px;font-weight:950}
+    .subtitle,.small{color:var(--muted);font-size:13px}
+
+    .panel{
+      background:var(--panel);
+      border-radius:18px;
+      padding:14px;
+      margin-bottom:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.18)
+    }
+
+    .home-logo{
+      font-size:34px;
+      font-weight:1000;
+      text-align:center;
+      padding:40px 12px 28px
+    }
+
+    .home-logo span{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      font-weight:600;
+      margin-top:6px
+    }
+
+    .menu{display:grid;gap:12px}
+
+    .menu button,.wide-btn{
+      padding:18px;
+      border-radius:16px;
+      background:var(--info);
+      font-weight:900;
+      font-size:18px;
+      width:100%
+    }
+
+    .menu button.secondary,.wide-btn.secondary{background:var(--panel2)}
+    .wide-btn.good{background:var(--good)}
+    .wide-btn.bad{background:var(--bad)}
+
+    .icon-btn{
+      background:var(--panel2);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:800
+    }
+
+    .scoreboard{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:8px;
+      align-items:center;
+      text-align:center
+    }
+
+    .team-name{
+      font-weight:900;
+      font-size:16px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap
+    }
+
+    .score{
+      font-size:62px;
+      font-weight:1000;
+      line-height:1
+    }
+
+    .set-info{min-width:98px}
+    .set-number{font-size:13px;color:var(--muted)}
+    .set-score{font-size:26px;font-weight:950;margin-top:4px}
+
+    .match-status{
+      margin-top:6px;
+      font-weight:950;
+      font-size:13px;
+      text-transform:uppercase;
+      color:#fbbf24
+    }
+
+    .score-controls{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:8px;
+      margin-top:14px
+    }
+
+    .score-controls button{
+      padding:15px 8px;
+      border-radius:14px;
+      font-weight:900
+    }
+
+    .ours{background:#0f766e}
+    .theirs{background:#7f1d1d}
+    .undo{background:var(--panel2)}
+
+    .timeout-controls{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:8px
+    }
+
+    .timeout-controls button{
+      padding:12px;
+      border-radius:12px;
+      background:var(--panel2);
+      font-weight:800
+    }
+
+    .event-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:9px
+    }
+
+    .event-btn{
+      min-height:70px;
+      border-radius:14px;
+      padding:10px 6px;
+      font-weight:900
+    }
+
+    .event-btn.good{background:#14532d}
+    .event-btn.bad{background:#7f1d1d}
+    .event-btn.neutral{background:#075985}
+
+    .live-bottom{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
+      position:sticky;
+      bottom:8px;
+      z-index:20;
+      background:rgba(11,16,32,.92);
+      padding:8px;
+      border-radius:16px;
+      backdrop-filter:blur(8px)
+    }
+
+    .live-bottom button{
+      background:var(--panel2);
+      border-radius:12px;
+      padding:11px 4px;
+      font-size:12px;
+      font-weight:850
+    }
+
+    .danger-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px
+    }
+
+    .danger-row button{
+      padding:13px;
+      border-radius:12px;
+      background:var(--panel2);
+      font-weight:850
+    }
+
+    .danger-row .danger{background:#7f1d1d}
+
+    .list{
+      display:flex;
+      flex-direction:column;
+      gap:8px
+    }
+
+    .card{
+      background:var(--panel2);
+      padding:12px;
+      border-radius:14px
+    }
+
+    .clickable{cursor:pointer}
+    .card-title{font-weight:900}
+
+    .card-meta{
+      font-size:13px;
+      color:var(--muted);
+      margin-top:4px
+    }
+
+    .row{
+      display:flex;
+      gap:8px;
+      align-items:center
+    }
+
+    .row>*{min-width:0}
+    .grow{flex:1}
+
+    .split{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px
+    }
+
+    .section-title{
+      font-size:18px;
+      font-weight:950;
+      margin:4px 0 12px
+    }
+
+    .empty{
+      color:var(--muted);
+      padding:18px;
+      text-align:center
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.78);
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      z-index:100
+    }
+
+    .modal.open{display:flex}
+
+    .sheet{
+      width:100%;
+      max-width:700px;
+      background:#111827;
+      border-radius:22px 22px 0 0;
+      padding:18px;
+      max-height:92vh;
+      overflow:auto
+    }
+
+    .sheet h3{margin-top:0}
+
+    .sheet-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+      margin-top:14px
+    }
+
+    .sheet-actions button{
+      padding:14px;
+      border-radius:12px;
+      background:var(--panel2);
+      font-weight:900
+    }
+
+    .sheet-actions .primary{background:var(--info)}
+
+    .format-options{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px
+    }
+
+    .format-btn{
+      padding:20px 12px;
+      border-radius:14px;
+      background:var(--panel2);
+      font-weight:900
+    }
+
+    .format-btn.active{
+      outline:3px solid var(--accent);
+      background:#0c4a6e
+    }
+
+    .form-group{margin-bottom:12px}
+
+    .form-group label{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+      color:var(--muted)
+    }
+
+    .picker-grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px
+    }
+
+    .picker{
+      background:var(--panel2);
+      padding:14px;
+      border-radius:14px;
+      text-align:left
+    }
+
+    .picker strong{display:block}
+
+    .picker span{
+      font-size:12px;
+      color:var(--muted)
+    }
+
+    .timeout-banner{
+      display:none;
+      position:fixed;
+      top:12px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:200;
+      background:#111827;
+      border:2px solid var(--accent);
+      border-radius:18px;
+      padding:12px 18px;
+      text-align:center;
+      box-shadow:0 12px 40px rgba(0,0,0,.45)
+    }
+
+    .timeout-banner.open{display:block}
+    .timeout-seconds{font-size:34px;font-weight:1000}
+
+    .roster-columns{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px
+    }
+
+    .roster-zone{
+      background:var(--panel2);
+      border-radius:14px;
+      padding:10px;
+      min-height:180px
+    }
+
+    .roster-zone h4{margin:0 0 8px}
+
+    .roster-player{
+      background:#111827;
+      border:1px solid var(--line);
+      border-radius:11px;
+      padding:10px;
+      margin-bottom:7px;
+      cursor:grab
+    }
+
+    .roster-player.dragging{opacity:.5}
+    .roster-player .small{pointer-events:none}
+
+    .team-row{
+      display:flex;
+      gap:8px;
+      align-items:center
+    }
+
+    .team-row button:first-child{
+      flex:1;
+      text-align:left
+    }
+
+    .delete-mini{
+      background:#7f1d1d;
+      padding:10px;
+      border-radius:10px
+    }
+
+    .check-list{
+      display:flex;
+      flex-direction:column;
+      gap:7px
+    }
+
+    .check-item{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:var(--panel2);
+      padding:10px;
+      border-radius:10px
+    }
+
+    .check-item input{width:auto}
+
+    .new-player-row{
+      display:grid;
+      grid-template-columns:80px 1fr auto;
+      gap:7px;
+      margin-top:8px
+    }
+
+    .new-player-row button{
+      background:var(--good);
+      border-radius:10px;
+      padding:0 13px;
+      font-weight:900
+    }
+
+    .stats-hero{text-align:center}
+    .stats-result{font-size:38px;font-weight:1000}
+
+    .stats-sets{
+      color:var(--muted);
+      line-height:1.7;
+      margin-top:8px
+    }
+
+    .stat-summary{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px
+    }
+
+    .metric{
+      background:var(--panel2);
+      border-radius:12px;
+      padding:12px;
+      text-align:center
+    }
+
+    .metric b{
+      display:block;
+      font-size:24px
+    }
+
+    .player-stat{
+      background:var(--panel2);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:8px
+    }
+
+    .player-stat-title{
+      font-weight:900;
+      margin-bottom:6px
+    }
+
+    .stats-actions{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:8px
+    }
+
+    .stats-actions button{
+      padding:12px 6px;
+      border-radius:12px;
+      background:var(--panel2);
+      font-weight:800
+    }
+
+    .event{
+      background:var(--panel2);
+      padding:10px 12px;
+      border-radius:12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:14px
+    }
+
+    .match-end{text-align:center}
+    .match-end-title{font-size:32px;font-weight:1000}
+
+    .match-end-score{
+      font-size:48px;
+      font-weight:1000;
+      margin:8px 0
+    }
+
+    @media(min-width:700px){
+      .event-grid{grid-template-columns:repeat(5,1fr)}
+      .picker-grid{grid-template-columns:repeat(3,1fr)}
+      .stat-summary{grid-template-columns:repeat(4,1fr)}
+    }
+
+    @media(max-width:430px){
+      .score{font-size:52px}
+      .event-grid{grid-template-columns:repeat(3,1fr)}
+      .roster-columns{grid-template-columns:1fr 1fr}
+      .team-name{font-size:14px}
+    }
+
+    @media print{
+      body{background:white;color:black}
+      .app>*:not(#screen-stats):not(#screen-team-stats){display:none!important}
+      #screen-stats.active,#screen-team-stats.active{display:block!important}
+      .topbar button,.stats-actions{display:none!important}
+      .panel,.player-stat,.metric{
+        box-shadow:none;
+        border:1px solid #bbb;
+        background:white;
+        color:black
+      }
+      .small,.card-meta,.stats-sets{color:#555}
+    }
   </style>
 </head>
+
 <body>
-<div id="timeoutBanner" class="timeout-banner"><div class="small" id="timeoutLabel">TIMEOUT</div><div class="timeout-seconds" id="timeoutSeconds">60</div><button class="icon-btn" onclick="dismissTimeout()">Chiudi</button></div>
+
+<div id="timeoutBanner" class="timeout-banner">
+  <div class="small" id="timeoutLabel">TIMEOUT</div>
+  <div class="timeout-seconds" id="timeoutSeconds">60</div>
+  <button class="icon-btn" onclick="dismissTimeout()">Chiudi</button>
+</div>
+
 <div class="app">
+
   <section id="screen-home" class="screen active">
-    <div class="home-logo">🏐 VOLLEY BENCH<span>Statistiche rapide da bordo campo</span></div>
+
+    <div class="home-logo">
+      🏐 VOLLEY BENCH
+      <span>Statistiche rapide da bordo campo</span>
+    </div>
+
     <div class="panel menu">
       <button onclick="openNewMatchModal()">Nuova partita</button>
       <button class="secondary" onclick="showArchive()">Archivio partite</button>
       <button class="secondary" onclick="showTeams()">Gestione squadre</button>
     </div>
+
   </section>
+
 
   <section id="screen-live" class="screen">
-    <div class="topbar"><div><div class="brand">🏐 Partita</div><div class="subtitle" id="liveStartedAt"></div></div><button class="icon-btn" onclick="goHomeFromMatch()">⌂ Home</button></div>
-    <div class="panel">
-      <div class="scoreboard">
-        <div><div class="team-name" id="ourTeamName">Squadra 1</div><div class="score" id="ourScore">0</div></div>
-        <div class="set-info"><div class="set-number">SET <span id="setNumber">1</span></div><div class="small" id="matchFormatLabel">Best of 3</div><div class="small" id="setTargetLabel"></div><div class="set-score"><span id="ourSets">0</span> - <span id="theirSets">0</span></div><div id="matchStatus" class="match-status"></div></div>
-        <div><div class="team-name" id="theirTeamName">Avversario</div><div class="score" id="theirScore">0</div></div>
+
+    <div class="topbar">
+
+      <div>
+        <div class="brand">🏐 Partita</div>
+        <div class="subtitle" id="liveStartedAt"></div>
       </div>
-      <div class="score-controls"><button class="ours" onclick="manualPoint('our')">+ Punto noi</button><button class="theirs" onclick="manualPoint('their')">+ Punto loro</button><button class="undo" onclick="undo()">↩ Annulla</button></div>
-      <div class="timeout-controls"><button onclick="timeout('our')">⏱ TO <span id="ourTimeouts">0</span></button><button onclick="timeout('their')">⏱ TO avv. <span id="theirTimeouts">0</span></button></div>
+
+      <button class="icon-btn" onclick="goHomeFromMatch()">⌂ Home</button>
+
     </div>
-    <div class="panel"><div class="section-title">Evento</div><div class="event-grid">
-      <button class="event-btn good" onclick="choosePlayerForEvent('point')">🏐 Punto</button>
-      <button class="event-btn good" onclick="choosePlayerForEvent('ace')">🎯 Ace</button>
-      <button class="event-btn good" onclick="choosePlayerForEvent('block')">🧱 Muro</button>
-      <button class="event-btn bad" onclick="choosePlayerForEvent('serveError')">❌ Err. servizio</button>
-      <button class="event-btn bad" onclick="choosePlayerForEvent('attackError')">❌ Err. attacco</button>
-      <button class="event-btn bad" onclick="choosePlayerForEvent('receiveError')">❌ Err. ricezione</button>
-      <button class="event-btn neutral" onclick="choosePlayerForEvent('perfectReceive')">✨ Ricezione ++</button>
-      <button class="event-btn neutral" onclick="choosePlayerForEvent('perfectSet')">🙌 Alzata ++</button>
-      <button class="event-btn neutral" onclick="choosePlayerForEvent('dig')">🛡 Difesa</button>
-    </div></div>
-    <div class="panel danger-row"><button class="danger" onclick="requestNewMatchFromLive()">Nuova partita</button><button onclick="manualNewSet()">Nuovo set</button></div>
-    <div class="live-bottom"><button onclick="goHomeFromMatch()">⌂<br>Home</button><button onclick="showLiveLog()">▤<br>Log</button><button onclick="showRoster()">👥<br>Rosa</button><button onclick="showStats('live')">▥<br>Statistiche</button></div>
+
+    <div class="panel">
+
+      <div class="scoreboard">
+
+        <div>
+          <div class="team-name" id="ourTeamName">Squadra 1</div>
+          <div class="score" id="ourScore">0</div>
+        </div>
+
+        <div class="set-info">
+
+          <div class="set-number">
+            SET <span id="setNumber">1</span>
+          </div>
+
+          <div class="small" id="matchFormatLabel">Best of 3</div>
+          <div class="small" id="setTargetLabel"></div>
+
+          <div class="set-score">
+            <span id="ourSets">0</span> -
+            <span id="theirSets">0</span>
+          </div>
+
+          <div id="matchStatus" class="match-status"></div>
+
+        </div>
+
+        <div>
+          <div class="team-name" id="theirTeamName">Avversario</div>
+          <div class="score" id="theirScore">0</div>
+        </div>
+
+      </div>
+
+      <div class="score-controls">
+
+        <button class="ours" onclick="manualPoint('our')">
+          + Punto noi
+        </button>
+
+        <button class="theirs" onclick="manualPoint('their')">
+          + Punto loro
+        </button>
+
+        <button class="undo" onclick="undo()">
+          ↩ Annulla
+        </button>
+
+      </div>
+
+      <div class="timeout-controls">
+
+        <button onclick="timeout('our')">
+          ⏱ TO <span id="ourTimeouts">0</span>
+        </button>
+
+        <button onclick="timeout('their')">
+          ⏱ TO avv. <span id="theirTimeouts">0</span>
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="panel">
+
+      <div class="section-title">Evento</div>
+
+      <div class="event-grid">
+
+        <button class="event-btn good" onclick="choosePlayerForEvent('ace')">
+          🎯 ACE +
+        </button>
+
+        <button class="event-btn good" onclick="choosePlayerForEvent('spike')">
+          💥 Schiacciata +
+        </button>
+
+        <button class="event-btn good" onclick="choosePlayerForEvent('tip')">
+          🤏 Pallonetto +
+        </button>
+
+        <button class="event-btn good" onclick="choosePlayerForEvent('block')">
+          🧱 Muro +
+        </button>
+
+        <button class="event-btn bad" onclick="choosePlayerForEvent('serveError')">
+          ❌ Errore servizio -
+        </button>
+
+        <button class="event-btn bad" onclick="choosePlayerForEvent('attackError')">
+          ❌ Errore attacco -
+        </button>
+
+        <button class="event-btn bad" onclick="choosePlayerForEvent('blockError')">
+          🧱 Muro -
+        </button>
+
+        <button class="event-btn good" onclick="choosePlayerForEvent('foulPlus')">
+          ⚠️ Fallo +
+        </button>
+
+        <button class="event-btn bad" onclick="choosePlayerForEvent('foulMinus')">
+          ⚠️ Fallo -
+        </button>
+
+        <button class="event-btn bad" onclick="choosePlayerForEvent('receiveError')">
+          ❌ Errore rice -
+        </button>
+
+        <button class="event-btn neutral" onclick="choosePlayerForEvent('perfectSet')">
+          🙌 Alzata perfetta =
+        </button>
+
+        <button class="event-btn neutral" onclick="choosePlayerForEvent('perfectDefense')">
+          🛡 Difesa perfetta =
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="panel danger-row">
+
+      <button class="danger" onclick="requestNewMatchFromLive()">
+        Nuova partita
+      </button>
+
+      <button onclick="manualNewSet()">
+        Nuovo set
+      </button>
+
+    </div>
+
+
+    <div class="live-bottom">
+
+      <button onclick="goHomeFromMatch()">
+        ⌂<br>Home
+      </button>
+
+      <button onclick="showLiveLog()">
+        ▤<br>Log
+      </button>
+
+      <button onclick="showRoster()">
+        👥<br>Rosa
+      </button>
+
+      <button onclick="showStats('live')">
+        ▥<br>Statistiche
+      </button>
+
+    </div>
+
   </section>
 
-  <section id="screen-log" class="screen"><div class="topbar"><div class="brand">Cronologia</div><button class="icon-btn" onclick="showLive()">← Partita</button></div><div class="panel"><div id="logList" class="list"></div></div></section>
 
-  <section id="screen-roster" class="screen"><div class="topbar"><div><div class="brand">Gestione rosa</div><div class="subtitle">Trascina i giocatori tra campo e panchina</div></div><button class="icon-btn" onclick="showLive()">← Partita</button></div><div class="roster-columns"><div class="roster-zone" id="activeZone" data-zone="active"><h4>In campo</h4><div id="activePlayers"></div></div><div class="roster-zone" id="benchZone" data-zone="bench"><h4>Panchina</h4><div id="benchPlayers"></div></div></div><div class="panel small" style="margin-top:12px">Su touch puoi anche toccare un giocatore: se è in campo passa in panchina, e viceversa. Massimo 6 giocatori in campo.</div></section>
+  <section id="screen-log" class="screen">
 
-  <section id="screen-teams" class="screen"><div class="topbar"><div class="brand">Gestione squadre</div><button class="icon-btn" onclick="showScreen('home')">⌂ Home</button></div><button class="wide-btn good" onclick="openTeamEditor()">+ Nuova squadra</button><div class="panel"><div id="teamsList" class="list"></div></div></section>
+    <div class="topbar">
 
-  <section id="screen-team-detail" class="screen"><div class="topbar"><div><div class="brand" id="teamDetailName">Squadra</div><div class="subtitle" id="teamDetailMeta"></div></div><button class="icon-btn" onclick="showTeams()">← Squadre</button></div><div class="panel menu"><button class="secondary" onclick="editCurrentTeam()">Gestisci giocatori</button><button class="secondary" onclick="showTeamArchive()">Archivio partite</button><button class="danger" onclick="deleteCurrentTeam()">Elimina squadra</button></div></section>
+      <div class="brand">Cronologia</div>
 
-  <section id="screen-archive" class="screen"><div class="topbar"><div><div class="brand">Archivio partite</div><div class="subtitle" id="archiveSubtitle"></div></div><button class="icon-btn" onclick="archiveBack()">← Indietro</button></div><div class="panel"><div id="archiveList" class="list"></div></div></section>
+      <button class="icon-btn" onclick="showLive()">
+        ← Partita
+      </button>
 
-  <section id="screen-stats" class="screen"><div class="topbar"><div><div class="brand">Statistiche</div><div class="subtitle" id="statsSubtitle"></div></div><button class="icon-btn" onclick="statsBack()">← Indietro</button></div><div class="panel stats-hero"><div id="statsResult" class="stats-result"></div><div id="statsSets" class="stats-sets"></div></div><div class="panel"><div class="section-title">Statistiche generali</div><div id="generalStats" class="stat-summary"></div></div><div class="panel"><div class="section-title">Statistiche giocatori</div><div id="playerStats"></div></div><div class="panel stats-actions"><button onclick="exportStatsTxt()">TXT</button><button onclick="window.print()">Stampa / PDF</button><button onclick="exportBackupJson()">Backup JSON</button></div></section>
+    </div>
+
+    <div class="panel">
+      <div id="logList" class="list"></div>
+    </div>
+
+  </section>
+
+
+  <section id="screen-roster" class="screen">
+
+    <div class="topbar">
+
+      <div>
+        <div class="brand">Gestione rosa</div>
+        <div class="subtitle">Trascina i giocatori tra campo e panchina</div>
+      </div>
+
+      <button class="icon-btn" onclick="showLive()">
+        ← Partita
+      </button>
+
+    </div>
+
+    <div class="roster-columns">
+
+      <div class="roster-zone" id="activeZone" data-zone="active">
+
+        <h4>In campo</h4>
+
+        <div id="activePlayers"></div>
+
+      </div>
+
+      <div class="roster-zone" id="benchZone" data-zone="bench">
+
+        <h4>Panchina</h4>
+
+        <div id="benchPlayers"></div>
+
+      </div>
+
+    </div>
+
+    <div class="panel small" style="margin-top:12px">
+      Su touch puoi anche toccare un giocatore:
+      se è in campo passa in panchina, e viceversa.
+      Massimo 6 giocatori in campo.
+    </div>
+
+  </section>
+
+
+  <section id="screen-teams" class="screen">
+
+    <div class="topbar">
+
+      <div class="brand">Gestione squadre</div>
+
+      <button class="icon-btn" onclick="showScreen('home')">
+        ⌂ Home
+      </button>
+
+    </div>
+
+    <button class="wide-btn good" onclick="openTeamEditor()">
+      + Nuova squadra
+    </button>
+
+    <div class="panel">
+      <div id="teamsList" class="list"></div>
+    </div>
+
+  </section>
+
+
+  <section id="screen-team-detail" class="screen">
+
+    <div class="topbar">
+
+      <div>
+        <div class="brand" id="teamDetailName">Squadra</div>
+        <div class="subtitle" id="teamDetailMeta"></div>
+      </div>
+
+      <button class="icon-btn" onclick="showTeams()">
+        ← Squadre
+      </button>
+
+    </div>
+
+    <div class="panel menu">
+
+      <button class="secondary" onclick="openRenameTeamModal()">
+        Modifica nome
+      </button>
+
+      <button class="secondary" onclick="editCurrentTeam()">
+        Gestisci giocatori
+      </button>
+
+      <button class="secondary" onclick="showTeamArchive()">
+        Archivio partite
+      </button>
+
+      <button class="secondary" onclick="showTeamGeneralStats()">
+        Statistiche generali
+      </button>
+
+      <button class="danger" onclick="deleteCurrentTeam()">
+        Elimina squadra
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <section id="screen-archive" class="screen">
+
+    <div class="topbar">
+
+      <div>
+        <div class="brand">Archivio partite</div>
+        <div class="subtitle" id="archiveSubtitle"></div>
+      </div>
+
+      <button class="icon-btn" onclick="archiveBack()">
+        ← Indietro
+      </button>
+
+    </div>
+
+    <div class="panel">
+      <div id="archiveList" class="list"></div>
+    </div>
+
+  </section>
+
+
+  <section id="screen-team-stats" class="screen">
+
+    <div class="topbar">
+
+      <div>
+        <div class="brand">Statistiche generali</div>
+        <div class="subtitle" id="teamStatsSubtitle"></div>
+      </div>
+
+      <button class="icon-btn" onclick="showScreen('team-detail')">
+        ← Squadra
+      </button>
+
+    </div>
+
+    <div class="panel">
+
+      <div class="section-title">Riepilogo squadra</div>
+
+      <div id="teamGeneralStats" class="stat-summary"></div>
+
+    </div>
+
+    <div class="panel">
+
+      <div class="section-title">Totali eventi</div>
+
+      <div id="teamEventStats" class="stat-summary"></div>
+
+    </div>
+
+    <div class="panel">
+
+      <div class="section-title">Statistiche giocatori</div>
+
+      <div id="teamPlayerStats"></div>
+
+    </div>
+
+    <div class="panel stats-actions">
+
+      <button onclick="exportTeamStatsCsv()">
+        CSV
+      </button>
+
+      <button onclick="window.print()">
+        Stampa / PDF
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <section id="screen-stats" class="screen">
+
+    <div class="topbar">
+
+      <div>
+        <div class="brand">Statistiche</div>
+        <div class="subtitle" id="statsSubtitle"></div>
+      </div>
+
+      <button class="icon-btn" onclick="statsBack()">
+        ← Indietro
+      </button>
+
+    </div>
+
+    <div class="panel stats-hero">
+
+      <div id="statsResult" class="stats-result"></div>
+
+      <div id="statsSets" class="stats-sets"></div>
+
+    </div>
+
+    <div class="panel">
+
+      <div class="section-title">Statistiche generali</div>
+
+      <div id="generalStats" class="stat-summary"></div>
+
+    </div>
+
+    <div class="panel">
+
+      <div class="section-title">Statistiche giocatori</div>
+
+      <div id="playerStats"></div>
+
+    </div>
+
+    <div class="panel stats-actions">
+
+      <button onclick="exportStatsCsv()">
+        CSV
+      </button>
+
+      <button onclick="exportStatsTxt()">
+        TXT
+      </button>
+
+      <button onclick="window.print()">
+        Stampa / PDF
+      </button>
+
+      <button onclick="exportBackupJson()">
+        Backup JSON
+      </button>
+
+    </div>
+
+  </section>
+
 </div>
 
-<div id="newMatchModal" class="modal"><div class="sheet"><h3>Nuova partita</h3><div class="form-group"><label>Squadra 1</label><select id="newMatchOurTeam"></select></div><div class="form-group"><label>Squadra 2 salvata (opzionale)</label><select id="newMatchOpponentTeam"></select></div><div class="form-group"><label>Oppure nome avversario</label><input id="newMatchOpponentName" placeholder="Avversario"></div><div class="small">Se lasci vuoti squadra 2 e nome, verrà visualizzato “Avversario”.</div><div class="format-options"><button id="format3Button" class="format-btn" onclick="selectMatchFormat(3)">BEST OF 3</button><button id="format5Button" class="format-btn" onclick="selectMatchFormat(5)">BEST OF 5</button></div><div class="sheet-actions"><button onclick="closeModal('newMatchModal')">Annulla</button><button class="primary" onclick="startNewMatch()">Inizia partita</button></div></div></div>
 
-<div id="playerPickerModal" class="modal"><div class="sheet"><h3 id="playerPickerTitle">Assegna evento</h3><div id="playerPickerGrid" class="picker-grid"></div><div class="sheet-actions"><button onclick="closeModal('playerPickerModal')">Annulla</button><button onclick="closeModal('playerPickerModal')">Chiudi</button></div></div></div>
+<div id="newMatchModal" class="modal">
 
-<div id="teamEditorModal" class="modal"><div class="sheet"><h3 id="teamEditorTitle">Nuova squadra</h3><div class="form-group"><label>Nome squadra</label><input id="teamNameInput" placeholder="Nome squadra"></div><div class="section-title">Giocatori del pool</div><div id="playerPoolChecks" class="check-list"></div><div class="section-title" style="margin-top:16px">Aggiungi nuovo giocatore</div><div class="new-player-row"><input id="newPlayerNum" placeholder="#" inputmode="numeric"><input id="newPlayerName" placeholder="Nome"><button onclick="addPlayerFromEditor()">+</button></div><div class="small" style="margin-top:8px">Massimo 20 giocatori per squadra. Lo stesso giocatore può appartenere a più squadre.</div><div class="sheet-actions"><button onclick="closeModal('teamEditorModal')">Annulla</button><button class="primary" onclick="saveTeamEditor()">Salva</button></div></div></div>
+  <div class="sheet">
 
-<div id="matchEndModal" class="modal"><div class="sheet match-end"><div id="matchEndTitle" class="match-end-title">VITTORIA</div><div id="matchEndScore" class="match-end-score">2 - 0</div><div id="matchEndSets" class="stats-sets"></div><div class="sheet-actions"><button onclick="closeMatchEndAndLive()">Chiudi</button><button class="primary" onclick="showStatsFromEnd()">Statistiche</button></div><button class="wide-btn secondary" style="margin-top:8px" onclick="restartFromMatchEnd()">Nuova partita</button></div></div>
+    <h3>Nuova partita</h3>
+
+    <div class="form-group">
+
+      <label>Squadra 1</label>
+
+      <select id="newMatchOurTeam"></select>
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Squadra 2 salvata (opzionale)</label>
+
+      <select id="newMatchOpponentTeam"></select>
+
+    </div>
+
+    <div class="form-group">
+
+      <label>Oppure nome avversario</label>
+
+      <input
+        id="newMatchOpponentName"
+        placeholder="Avversario"
+      >
+
+    </div>
+
+    <div class="small">
+      Se lasci vuoti squadra 2 e nome,
+      verrà visualizzato “Avversario”.
+    </div>
+
+    <div class="format-options">
+
+      <button
+        id="format3Button"
+        class="format-btn"
+        onclick="selectMatchFormat(3)"
+      >
+        BEST OF 3
+      </button>
+
+      <button
+        id="format5Button"
+        class="format-btn"
+        onclick="selectMatchFormat(5)"
+      >
+        BEST OF 5
+      </button>
+
+    </div>
+
+    <div class="sheet-actions">
+
+      <button onclick="closeModal('newMatchModal')">
+        Annulla
+      </button>
+
+      <button
+        class="primary"
+        onclick="startNewMatch()"
+      >
+        Inizia partita
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="playerPickerModal" class="modal">
+
+  <div class="sheet">
+
+    <h3 id="playerPickerTitle">
+      Assegna evento
+    </h3>
+
+    <div id="playerPickerGrid" class="picker-grid"></div>
+
+    <div class="sheet-actions">
+
+      <button onclick="closeModal('playerPickerModal')">
+        Annulla
+      </button>
+
+      <button onclick="closeModal('playerPickerModal')">
+        Chiudi
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="teamEditorModal" class="modal">
+
+  <div class="sheet">
+
+    <h3 id="teamEditorTitle">
+      Nuova squadra
+    </h3>
+
+    <div class="form-group">
+
+      <label>Nome squadra</label>
+
+      <input
+        id="teamNameInput"
+        placeholder="Nome squadra"
+      >
+
+    </div>
+
+    <div class="section-title">
+      Giocatori del pool
+    </div>
+
+    <div id="playerPoolChecks" class="check-list"></div>
+
+    <div
+      class="section-title"
+      style="margin-top:16px"
+    >
+      Aggiungi nuovo giocatore
+    </div>
+
+    <div class="new-player-row">
+
+      <input
+        id="newPlayerNum"
+        placeholder="#"
+        inputmode="numeric"
+      >
+
+      <input
+        id="newPlayerName"
+        placeholder="Nome"
+      >
+
+      <button onclick="addPlayerFromEditor()">
+        +
+      </button>
+
+    </div>
+
+    <div class="small" style="margin-top:8px">
+      Massimo 20 giocatori per squadra.
+      Lo stesso giocatore può appartenere a più squadre.
+    </div>
+
+    <div class="sheet-actions">
+
+      <button onclick="closeModal('teamEditorModal')">
+        Annulla
+      </button>
+
+      <button
+        class="primary"
+        onclick="saveTeamEditor()"
+      >
+        Salva
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="renameTeamModal" class="modal">
+
+  <div class="sheet">
+
+    <h3>Modifica nome squadra</h3>
+
+    <div class="form-group">
+
+      <label>Nome squadra</label>
+
+      <input
+        id="renameTeamInput"
+        placeholder="Nome squadra"
+      >
+
+    </div>
+
+    <div class="sheet-actions">
+
+      <button onclick="closeModal('renameTeamModal')">
+        Annulla
+      </button>
+
+      <button
+        class="primary"
+        onclick="saveRenamedTeam()"
+      >
+        Salva
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="matchEndModal" class="modal">
+
+  <div class="sheet match-end">
+
+    <div id="matchEndTitle" class="match-end-title">
+      VITTORIA
+    </div>
+
+    <div id="matchEndScore" class="match-end-score">
+      2 - 0
+    </div>
+
+    <div id="matchEndSets" class="stats-sets"></div>
+
+    <div class="sheet-actions">
+
+      <button onclick="closeMatchEndAndLive()">
+        Chiudi
+      </button>
+
+      <button
+        class="primary"
+        onclick="showStatsFromEnd()"
+      >
+        Statistiche
+      </button>
+
+    </div>
+
+    <button
+      class="wide-btn secondary"
+      style="margin-top:8px"
+      onclick="restartFromMatchEnd()"
+    >
+      Nuova partita
+    </button>
+
+  </div>
+
+</div>
+
 
 <script>
-const STORAGE_KEY="volleyBenchStateV5";
-const PREVIOUS_KEY="volleyBenchStateV4";
-const APP_VERSION=5;
-const statLabels={point:"Punto",ace:"Ace",block:"Muro",serveError:"Errore servizio",attackError:"Errore attacco",receiveError:"Errore ricezione",perfectReceive:"Ricezione perfetta",perfectSet:"Alzata perfetta",dig:"Difesa"};
-const scoreEffects={point:1,ace:1,block:1,serveError:-1,attackError:-1,receiveError:-1,perfectReceive:0,perfectSet:0,dig:0};
-let pendingMatchFormat=3,pendingEventType=null,currentTeamDetailId=null,archiveTeamFilter=null,archiveReturnScreen="home",statsContext=null,teamEditorId=null,timeoutTimer=null,timeoutRemaining=0;
-function emptyStats(){return{point:0,ace:0,block:0,serveError:0,attackError:0,receiveError:0,perfectReceive:0,perfectSet:0,dig:0}}
-function makeId(prefix){if(window.crypto&&typeof window.crypto.randomUUID==="function")return `${prefix}_${window.crypto.randomUUID()}`;return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,10)}`}
-function clone(v){return JSON.parse(JSON.stringify(v))}
-function normalizeStats(s={}){return{...emptyStats(),...s}}
-function createDefaultState(){const players=Array.from({length:6},(_,i)=>({id:makeId("player"),num:i+1,name:`Giocatore ${i+1}`}));const team={id:makeId("team"),name:"Squadra 1",playerIds:players.map(p=>p.id)};return{version:APP_VERSION,players,teams:[team],currentMatch:null,matchHistory:[]}}
-function migrateV4(raw){if(!raw||typeof raw!=="object")return createDefaultState();const players=(raw.players||[]).map(p=>({id:p.id||makeId("player"),num:p.num??"",name:p.name||"Giocatore"}));const teams=(raw.teams||[]).map(t=>({id:t.id||makeId("team"),name:t.name||"Squadra",playerIds:Array.isArray(t.playerIds)?t.playerIds:[]}));const out={version:APP_VERSION,players,teams:teams.length?teams:createDefaultState().teams,currentMatch:null,matchHistory:Array.isArray(raw.matchHistory)?raw.matchHistory.map(normalizeArchivedMatch):[]};if(raw.currentMatch){out.currentMatch=normalizeCurrentMatch(raw.currentMatch,players,teams)}return out}
-function normalizeMatchPlayer(p){return{playerId:p.playerId||p.id||makeId("player"),name:p.name||"Giocatore",num:p.num??"",stats:normalizeStats(p.stats)}}
-function normalizeArchivedMatch(m){return{...m,id:m.id||makeId("match"),createdAt:m.createdAt||new Date().toISOString(),completedAt:m.completedAt||m.createdAt||new Date().toISOString(),teamId:m.teamId||null,opponentTeamId:m.opponentTeamId||null,ourTeamName:m.ourTeamName||"Squadra",opponentTeamName:m.opponentTeamName||"Avversario",matchFormat:m.matchFormat===5?5:3,setResults:Array.isArray(m.setResults)?m.setResults:[],ourSets:Number(m.ourSets)||0,theirSets:Number(m.theirSets)||0,players:Array.isArray(m.players)?m.players.map(normalizeMatchPlayer):[],history:Array.isArray(m.history)?m.history.map(h=>({...h,before:null})):[]}}
-function normalizeCurrentMatch(m,players=[],teams=[]){const team=teams.find(t=>t.id===m.teamId);const roster=Array.isArray(m.players)?m.players.map(normalizeMatchPlayer):(team?.playerIds||[]).map(id=>players.find(p=>p.id===id)).filter(Boolean).map(p=>({playerId:p.id,name:p.name,num:p.num,stats:emptyStats()}));const activeIds=Array.isArray(m.activePlayerIds)?m.activePlayerIds:roster.slice(0,6).map(p=>p.playerId);return{id:m.id||makeId("match"),createdAt:m.createdAt||new Date().toISOString(),completedAt:m.completedAt||null,status:m.completedAt?"completed":"active",teamId:m.teamId||team?.id||null,opponentTeamId:m.opponentTeamId||null,ourTeamName:m.ourTeamName||team?.name||"Squadra",opponentTeamName:m.opponentTeamName&&m.opponentTeamName!=="LORO"?m.opponentTeamName:"Avversario",ourScore:Number(m.ourScore)||0,theirScore:Number(m.theirScore)||0,ourSets:Number(m.ourSets)||0,theirSets:Number(m.theirSets)||0,setNumber:Number(m.setNumber)||1,matchFormat:m.matchFormat===5?5:3,setResults:Array.isArray(m.setResults)?m.setResults:[],ourTimeouts:Number(m.ourTimeouts)||0,theirTimeouts:Number(m.theirTimeouts)||0,players:roster,activePlayerIds:activeIds.slice(0,6),history:Array.isArray(m.history)?m.history:[]}}
-function loadState(){try{const saved=localStorage.getItem(STORAGE_KEY);if(saved){const r=JSON.parse(saved);return migrateV4(r)}const prev=localStorage.getItem(PREVIOUS_KEY);if(prev){const migrated=migrateV4(JSON.parse(prev));localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));return migrated}}catch(e){console.error(e)}return createDefaultState()}
-let appState=loadState();
-function save(){appState.version=APP_VERSION;try{localStorage.setItem(STORAGE_KEY,JSON.stringify(appState))}catch(e){console.error("Salvataggio fallito",e)}}
-function currentMatch(){return appState.currentMatch}
-function showScreen(name){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(`screen-${name}`).classList.add("active");window.scrollTo(0,0)}
-function closeModal(id){document.getElementById(id).classList.remove("open")}
-function openModal(id){document.getElementById(id).classList.add("open")}
-function formatDate(iso){try{return new Intl.DateTimeFormat("it-IT",{dateStyle:"short",timeStyle:"short"}).format(new Date(iso))}catch{return iso||""}}
-function escapeHtml(s){return String(s??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
-function teamById(id){return appState.teams.find(t=>t.id===id)}
-function playerById(id){return appState.players.find(p=>p.id===id)}
-function setsNeededToWin(m=currentMatch()){return m?.matchFormat===5?3:2}
-function isMatchWon(m=currentMatch()){return !!m&&(m.ourSets>=setsNeededToWin(m)||m.theirSets>=setsNeededToWin(m))}
-function currentSetTarget(m=currentMatch()){if(!m)return 25;const needed=setsNeededToWin(m);return m.ourSets===needed-1&&m.theirSets===needed-1?15:25}
-function isSetWon(m=currentMatch()){if(!m)return false;return Math.max(m.ourScore,m.theirScore)>=currentSetTarget(m)&&Math.abs(m.ourScore-m.theirScore)>=2}
-function snapshotMatch(){const m=currentMatch();if(!m)return null;const{history,...rest}=m;return clone(rest)}
-function pushHistory(label,before,extra={}){const m=currentMatch();m.history.unshift({id:makeId("event"),label,time:new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit",second:"2-digit"}),score:`${m.ourScore}-${m.theirScore}`,before,...extra});if(m.history.length>100)m.history.length=100}
-function archiveCompletedMatch(){const m=currentMatch();if(!m||!m.completedAt)return;if(appState.matchHistory.some(x=>x.id===m.id))return;const archived=normalizeArchivedMatch({...clone(m),history:m.history.map(({before,...h})=>h)});appState.matchHistory.unshift(archived);save()}
-function handleSetWin(){const m=currentMatch();if(!m||isMatchWon(m)||!isSetWon(m))return;m.setResults.push({set:m.setNumber,ourScore:m.ourScore,theirScore:m.theirScore});if(m.ourScore>m.theirScore)m.ourSets++;else m.theirSets++;if(isMatchWon(m)){m.status="completed";m.completedAt=new Date().toISOString();archiveCompletedMatch();renderLive();openMatchEndModal();return}m.setNumber++;m.ourScore=0;m.theirScore=0;m.ourTimeouts=0;m.theirTimeouts=0}
-function renderLive(){const m=currentMatch();if(!m)return;document.getElementById("ourTeamName").textContent=m.ourTeamName;document.getElementById("theirTeamName").textContent=m.opponentTeamName||"Avversario";document.getElementById("ourScore").textContent=m.ourScore;document.getElementById("theirScore").textContent=m.theirScore;document.getElementById("ourSets").textContent=m.ourSets;document.getElementById("theirSets").textContent=m.theirSets;document.getElementById("setNumber").textContent=m.setNumber;document.getElementById("matchFormatLabel").textContent=`Best of ${m.matchFormat}`;document.getElementById("setTargetLabel").textContent=`Set a ${currentSetTarget(m)}`;document.getElementById("ourTimeouts").textContent=m.ourTimeouts;document.getElementById("theirTimeouts").textContent=m.theirTimeouts;document.getElementById("matchStatus").textContent=isMatchWon(m)?"PARTITA TERMINATA":"";document.getElementById("liveStartedAt").textContent=`Inizio ${formatDate(m.createdAt)}`;save()}
-function showLive(){if(!currentMatch()){showScreen("home");return}renderLive();showScreen("live")}
-function manualPoint(side){const m=currentMatch();if(!m||isMatchWon(m))return;const before=snapshotMatch();if(side==="our"){m.ourScore++;pushHistory(`Punto ${m.ourTeamName}`,before,{type:"manualPoint",side:"our"})}else{m.theirScore++;pushHistory(`Punto ${m.opponentTeamName}`,before,{type:"manualPoint",side:"their"})}handleSetWin();renderLive()}
-function choosePlayerForEvent(type){const m=currentMatch();if(!m||isMatchWon(m))return;pendingEventType=type;document.getElementById("playerPickerTitle").textContent=statLabels[type];const active=m.activePlayerIds.map(id=>m.players.find(p=>p.playerId===id)).filter(Boolean);document.getElementById("playerPickerGrid").innerHTML=active.length?active.map(p=>`<button class="picker" onclick="assignEventToPlayer('${p.playerId}')"><strong>#${escapeHtml(p.num)} ${escapeHtml(p.name)}</strong><span>${statLabels[type]}</span></button>`).join(""):`<div class="empty">Nessun giocatore in campo.</div>`;openModal("playerPickerModal")}
-function assignEventToPlayer(playerId){const m=currentMatch();if(!m||!pendingEventType||isMatchWon(m))return;const p=m.players.find(x=>x.playerId===playerId);if(!p)return;const before=snapshotMatch();p.stats[pendingEventType]++;const effect=scoreEffects[pendingEventType]||0;if(effect>0)m.ourScore++;if(effect<0)m.theirScore++;pushHistory(`#${p.num} ${p.name} · ${statLabels[pendingEventType]}`,before,{type:"stat",stat:pendingEventType,playerId});closeModal("playerPickerModal");pendingEventType=null;handleSetWin();renderLive()}
-function timeout(side){const m=currentMatch();if(!m||isMatchWon(m))return;const before=snapshotMatch();if(side==="our"){m.ourTimeouts++;pushHistory(`Timeout ${m.ourTeamName} (${m.ourTimeouts})`,before,{type:"timeout",side})}else{m.theirTimeouts++;pushHistory(`Timeout ${m.opponentTeamName} (${m.theirTimeouts})`,before,{type:"timeout",side})}startTimeoutCountdown(side==="our"?m.ourTeamName:m.opponentTeamName);renderLive()}
-function startTimeoutCountdown(label){clearInterval(timeoutTimer);timeoutRemaining=60;document.getElementById("timeoutLabel").textContent=`TIMEOUT · ${label}`;document.getElementById("timeoutSeconds").textContent=timeoutRemaining;document.getElementById("timeoutBanner").classList.add("open");timeoutTimer=setInterval(()=>{timeoutRemaining--;document.getElementById("timeoutSeconds").textContent=Math.max(0,timeoutRemaining);if(timeoutRemaining<=0)dismissTimeout()},1000)}
-function dismissTimeout(){clearInterval(timeoutTimer);timeoutTimer=null;document.getElementById("timeoutBanner").classList.remove("open")}
-function undo(){const m=currentMatch();if(!m||!m.history.length)return;const last=m.history[0];if(!last.before)return;if(m.completedAt){appState.matchHistory=appState.matchHistory.filter(x=>x.id!==m.id);closeModal("matchEndModal")}const remaining=m.history.slice(1);appState.currentMatch={...clone(last.before),history:remaining};save();renderLive()}
-function manualNewSet(){const m=currentMatch();if(!m||isMatchWon(m))return;if(!confirm("Attenzione: confermando chiuderai il set aperto. Continuare?"))return;const before=snapshotMatch();if(m.ourScore!==0||m.theirScore!==0){m.setResults.push({set:m.setNumber,ourScore:m.ourScore,theirScore:m.theirScore,manual:true});if(m.ourScore>m.theirScore)m.ourSets++;else if(m.theirScore>m.ourScore)m.theirSets++}pushHistory(`Chiusura manuale set ${m.setNumber}`,before,{type:"manualSet"});if(isMatchWon(m)){m.status="completed";m.completedAt=new Date().toISOString();archiveCompletedMatch();renderLive();openMatchEndModal();return}m.setNumber++;m.ourScore=0;m.theirScore=0;m.ourTimeouts=0;m.theirTimeouts=0;renderLive()}
-function goHomeFromMatch(){const m=currentMatch();if(m&&!m.completedAt&&!confirm("Attenzione, confermando perderai tutti i dati della partita in corso. Continuare?"))return;if(m&&!m.completedAt)appState.currentMatch=null;save();showScreen("home")}
-function requestNewMatchFromLive(){const m=currentMatch();if(m&&!m.completedAt&&!confirm("Attenzione, confermando perderai tutti i dati della partita in corso. Continuare?"))return;if(m&&!m.completedAt)appState.currentMatch=null;save();openNewMatchModal()}
-function openNewMatchModal(){if(!appState.teams.length){alert("Crea prima almeno una squadra.");showTeams();return}const our=document.getElementById("newMatchOurTeam"),opp=document.getElementById("newMatchOpponentTeam");our.innerHTML=appState.teams.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join("");opp.innerHTML=`<option value="">— Nessuna —</option>`+appState.teams.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join("");document.getElementById("newMatchOpponentName").value="";pendingMatchFormat=3;updateFormatButtons();openModal("newMatchModal")}
-function selectMatchFormat(n){pendingMatchFormat=n;updateFormatButtons()}
-function updateFormatButtons(){document.getElementById("format3Button").classList.toggle("active",pendingMatchFormat===3);document.getElementById("format5Button").classList.toggle("active",pendingMatchFormat===5)}
-function startNewMatch(){const team=teamById(document.getElementById("newMatchOurTeam").value);if(!team)return;if(!team.playerIds.length){alert("La squadra selezionata non ha giocatori.");return}const oppId=document.getElementById("newMatchOpponentTeam").value||null;const oppTeam=oppId?teamById(oppId):null;const typed=document.getElementById("newMatchOpponentName").value.trim();const roster=team.playerIds.map(playerById).filter(Boolean).slice(0,20);appState.currentMatch={id:makeId("match"),createdAt:new Date().toISOString(),completedAt:null,status:"active",teamId:team.id,opponentTeamId:oppTeam?.id||null,ourTeamName:team.name,opponentTeamName:oppTeam?.name||typed||"Avversario",ourScore:0,theirScore:0,ourSets:0,theirSets:0,setNumber:1,matchFormat:pendingMatchFormat,setResults:[],ourTimeouts:0,theirTimeouts:0,players:roster.map(p=>({playerId:p.id,name:p.name,num:p.num,stats:emptyStats()})),activePlayerIds:roster.slice(0,6).map(p=>p.id),history:[]};closeModal("newMatchModal");save();showLive()}
-function showLiveLog(){const m=currentMatch();if(!m)return;document.getElementById("logList").innerHTML=m.history.length?m.history.map(e=>`<div class="event"><span>${escapeHtml(e.label)}</span><span class="small">${escapeHtml(e.time)} · ${escapeHtml(e.score||"")}</span></div>`).join(""):`<div class="empty">Nessun evento registrato.</div>`;showScreen("log")}
-function showRoster(){renderRoster();showScreen("roster")}
-function renderRoster(){const m=currentMatch();if(!m)return;const activeSet=new Set(m.activePlayerIds);const active=m.players.filter(p=>activeSet.has(p.playerId));const bench=m.players.filter(p=>!activeSet.has(p.playerId));document.getElementById("activePlayers").innerHTML=active.map(rosterPlayerHtml).join("");document.getElementById("benchPlayers").innerHTML=bench.map(rosterPlayerHtml).join("");document.querySelectorAll(".roster-player").forEach(el=>{el.draggable=true;el.addEventListener("dragstart",()=>{el.classList.add("dragging");window.__dragPlayerId=el.dataset.id});el.addEventListener("dragend",()=>el.classList.remove("dragging"));el.addEventListener("click",()=>toggleRosterPlayer(el.dataset.id))});document.querySelectorAll(".roster-zone").forEach(z=>{z.ondragover=e=>e.preventDefault();z.ondrop=e=>{e.preventDefault();moveRosterPlayer(window.__dragPlayerId,z.dataset.zone)}})}
-function rosterPlayerHtml(p){return `<div class="roster-player" data-id="${p.playerId}"><b>#${escapeHtml(p.num)} ${escapeHtml(p.name)}</b><div class="small">Tocca o trascina</div></div>`}
-function toggleRosterPlayer(id){const m=currentMatch();if(!m)return;moveRosterPlayer(id,m.activePlayerIds.includes(id)?"bench":"active")}
-function moveRosterPlayer(id,zone){const m=currentMatch();if(!m||isMatchWon(m))return;const isActive=m.activePlayerIds.includes(id);if(zone==="active"&&!isActive&&m.activePlayerIds.length>=6){alert("Puoi avere al massimo 6 giocatori in campo.");return}if((zone==="active"&&isActive)||(zone==="bench"&&!isActive))return;const before=snapshotMatch();const p=m.players.find(x=>x.playerId===id);if(zone==="active")m.activePlayerIds.push(id);else m.activePlayerIds=m.activePlayerIds.filter(x=>x!==id);pushHistory(`${p?`#${p.num} ${p.name}`:"Giocatore"} · ${zone==="active"?"entra in campo":"va in panchina"}`,before,{type:"substitution",playerId:id,action:zone});save();renderRoster()}
-function showTeams(){renderTeams();showScreen("teams")}
-function renderTeams(){document.getElementById("teamsList").innerHTML=appState.teams.length?appState.teams.map(t=>`<div class="team-row"><button class="card clickable" onclick="openTeamDetail('${t.id}')"><div class="card-title">${escapeHtml(t.name)}</div><div class="card-meta">${t.playerIds.length} giocatori</div></button></div>`).join(""):`<div class="empty">Nessuna squadra.</div>`}
-function openTeamDetail(id){const t=teamById(id);if(!t)return;currentTeamDetailId=id;document.getElementById("teamDetailName").textContent=t.name;document.getElementById("teamDetailMeta").textContent=`${t.playerIds.length} giocatori`;showScreen("team-detail")}
-function openTeamEditor(id=null){teamEditorId=id;const t=id?teamById(id):null;document.getElementById("teamEditorTitle").textContent=t?"Gestisci squadra":"Nuova squadra";document.getElementById("teamNameInput").value=t?.name||"";renderPlayerPoolChecks(t?.playerIds||[]);document.getElementById("newPlayerNum").value="";document.getElementById("newPlayerName").value="";openModal("teamEditorModal")}
-function editCurrentTeam(){openTeamEditor(currentTeamDetailId)}
-function renderPlayerPoolChecks(selectedIds=[]){const selected=new Set(selectedIds);document.getElementById("playerPoolChecks").innerHTML=appState.players.length?appState.players.map(p=>`<label class="check-item"><input type="checkbox" class="pool-check" value="${p.id}" ${selected.has(p.id)?"checked":""}><span><b>#${escapeHtml(p.num)} ${escapeHtml(p.name)}</b></span></label>`).join(""):`<div class="empty">Il pool è vuoto.</div>`}
-function addPlayerFromEditor(){const name=document.getElementById("newPlayerName").value.trim(),num=document.getElementById("newPlayerNum").value.trim();if(!name){alert("Inserisci il nome.");return}const p={id:makeId("player"),name,num:num||""};appState.players.push(p);save();const checked=[...document.querySelectorAll(".pool-check:checked")].map(x=>x.value);checked.push(p.id);renderPlayerPoolChecks(checked);document.getElementById("newPlayerName").value="";document.getElementById("newPlayerNum").value=""}
-function saveTeamEditor(){const name=document.getElementById("teamNameInput").value.trim();if(!name){alert("Inserisci un nome squadra.");return}const ids=[...document.querySelectorAll(".pool-check:checked")].map(x=>x.value);if(ids.length>20){alert("Massimo 20 giocatori per squadra.");return}if(teamEditorId){const t=teamById(teamEditorId);t.name=name;t.playerIds=ids}else{const t={id:makeId("team"),name,playerIds:ids};appState.teams.push(t);currentTeamDetailId=t.id}save();closeModal("teamEditorModal");showTeams()}
-function deleteCurrentTeam(){const t=teamById(currentTeamDetailId);if(!t)return;if(!confirm(`Sei sicuro di voler eliminare “${t.name}”? Le partite e le statistiche già salvate saranno conservate.`))return;appState.teams=appState.teams.filter(x=>x.id!==t.id);save();currentTeamDetailId=null;showTeams()}
-function showArchive(){archiveTeamFilter=null;archiveReturnScreen="home";renderArchive();showScreen("archive")}
-function showTeamArchive(){archiveTeamFilter=currentTeamDetailId;archiveReturnScreen="team-detail";renderArchive();showScreen("archive")}
-function renderArchive(){const matches=archiveTeamFilter?appState.matchHistory.filter(m=>m.teamId===archiveTeamFilter||m.opponentTeamId===archiveTeamFilter):appState.matchHistory;document.getElementById("archiveSubtitle").textContent=archiveTeamFilter?`Filtro: ${teamById(archiveTeamFilter)?.name||"squadra"}`:`${matches.length} partite salvate`;document.getElementById("archiveList").innerHTML=matches.length?matches.map(m=>`<div class="team-row"><button class="card clickable" onclick="showStats('archive','${m.id}')"><div class="card-title">${escapeHtml(m.ourTeamName)} vs ${escapeHtml(m.opponentTeamName)}</div><div class="card-meta">${formatDate(m.createdAt)} · ${m.ourSets}-${m.theirSets}</div></button><button class="delete-mini" onclick="deleteArchivedMatch('${m.id}')">🗑</button></div>`).join(""):`<div class="empty">Nessuna partita salvata.</div>`}
-function deleteArchivedMatch(id){const m=appState.matchHistory.find(x=>x.id===id);if(!m)return;if(!confirm(`Eliminare ${m.ourTeamName} vs ${m.opponentTeamName} dall'archivio?`))return;appState.matchHistory=appState.matchHistory.filter(x=>x.id!==id);save();renderArchive()}
-function archiveBack(){showScreen(archiveReturnScreen)}
-function getStatsMatch(){if(statsContext?.type==="live")return currentMatch();if(statsContext?.type==="archive")return appState.matchHistory.find(m=>m.id===statsContext.matchId);return null}
-function showStats(type,matchId=null){statsContext={type,matchId,returnScreen:type==="live"?"live":"archive"};renderStatsScreen();showScreen("stats")}
-function renderStatsScreen(){const m=getStatsMatch();if(!m)return;document.getElementById("statsSubtitle").textContent=`${m.ourTeamName} vs ${m.opponentTeamName} · ${formatDate(m.createdAt)}`;document.getElementById("statsResult").textContent=`${m.ourSets} - ${m.theirSets}`;document.getElementById("statsSets").innerHTML=m.setResults.length?m.setResults.map(r=>`Set ${r.set}: ${r.ourScore}-${r.theirScore}${r.manual?" *":""}`).join("<br>"):"Nessun set concluso";const totals=aggregateStats(m.players||[]);const teamPoints=(m.players||[]).reduce((s,p)=>s+p.stats.point+p.stats.ace+p.stats.block,0);document.getElementById("generalStats").innerHTML=[['Punti attribuiti',teamPoints],['Ace',totals.ace],['Muri',totals.block],['Err. servizio',totals.serveError],['Err. attacco',totals.attackError],['Err. ricezione',totals.receiveError],['Ricezioni ++',totals.perfectReceive],['Alzate ++',totals.perfectSet],['Difese',totals.dig]].map(([k,v])=>`<div class="metric"><b>${v}</b><span class="small">${k}</span></div>`).join("");document.getElementById("playerStats").innerHTML=(m.players||[]).length?(m.players||[]).map(p=>{const pt=p.stats.point+p.stats.ace+p.stats.block;return `<div class="player-stat"><div class="player-stat-title">#${escapeHtml(p.num)} ${escapeHtml(p.name)} — ${pt} pt</div><div class="small">Ace ${p.stats.ace} · Muri ${p.stats.block} · Err. serv ${p.stats.serveError} · Err. att ${p.stats.attackError} · Err. ric ${p.stats.receiveError} · Ric. ++ ${p.stats.perfectReceive} · Alz. ++ ${p.stats.perfectSet} · Difese ${p.stats.dig}</div></div>`}).join(""):`<div class="empty">Nessun giocatore.</div>`}
-function aggregateStats(players){const t=emptyStats();players.forEach(p=>Object.keys(t).forEach(k=>t[k]+=Number(p.stats?.[k])||0));return t}
-function statsBack(){showScreen(statsContext?.returnScreen||"home")}
-function exportStatsTxt(){const m=getStatsMatch();if(!m)return;const lines=["VOLLEY BENCH",`${m.ourTeamName} vs ${m.opponentTeamName}`,formatDate(m.createdAt),`Risultato: ${m.ourSets}-${m.theirSets}`,"",...m.setResults.map(r=>`Set ${r.set}: ${r.ourScore}-${r.theirScore}`),"","STATISTICHE GIOCATORI",...(m.players||[]).map(p=>`#${p.num} ${p.name} | Punto ${p.stats.point} | Ace ${p.stats.ace} | Muro ${p.stats.block} | ErrServ ${p.stats.serveError} | ErrAtt ${p.stats.attackError} | ErrRic ${p.stats.receiveError} | Ric++ ${p.stats.perfectReceive} | Alz++ ${p.stats.perfectSet} | Difese ${p.stats.dig}`)];downloadBlob(lines.join("\n"),`volleybench_${safeFileName(m.ourTeamName)}_${new Date(m.createdAt).toISOString().slice(0,10)}.txt`,"text/plain;charset=utf-8")}
-function exportBackupJson(){downloadBlob(JSON.stringify(appState,null,2),`volleybench-backup-${new Date().toISOString().slice(0,10)}.json`,"application/json")}
-function downloadBlob(content,name,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
-function safeFileName(s){return String(s).toLowerCase().replace(/[^a-z0-9à-ÿ]+/gi,"-").replace(/^-|-$/g,"")}
-function openMatchEndModal(){const m=currentMatch();if(!m)return;document.getElementById("matchEndTitle").textContent=m.ourSets>m.theirSets?"VITTORIA":"SCONFITTA";document.getElementById("matchEndScore").textContent=`${m.ourSets} - ${m.theirSets}`;document.getElementById("matchEndSets").innerHTML=m.setResults.map(r=>`Set ${r.set} · ${r.ourScore}-${r.theirScore}`).join("<br>");openModal("matchEndModal")}
-function closeMatchEndAndLive(){closeModal("matchEndModal");showLive()}
-function showStatsFromEnd(){closeModal("matchEndModal");showStats("live")}
-function restartFromMatchEnd(){closeModal("matchEndModal");openNewMatchModal()}
-// Boot
-save();showScreen("home");
+
+const STORAGE_KEY = "volleyBenchStateV5";
+const PREVIOUS_KEY = "volleyBenchStateV4";
+const APP_VERSION = 5;
+
+
+const statLabels = {
+  ace:"ACE +",
+  spike:"Schiacciata +",
+  tip:"Pallonetto +",
+  block:"Muro +",
+  serveError:"Errore servizio -",
+  attackError:"Errore attacco -",
+  blockError:"Muro -",
+  foulPlus:"Fallo +",
+  foulMinus:"Fallo -",
+  receiveError:"Errore rice -",
+  perfectSet:"Alzata perfetta =",
+  perfectDefense:"Difesa perfetta ="
+};
+
+
+const scoreEffects = {
+  ace:1,
+  spike:1,
+  tip:1,
+  block:1,
+  serveError:-1,
+  attackError:-1,
+  blockError:-1,
+  foulPlus:1,
+  foulMinus:-1,
+  receiveError:-1,
+  perfectSet:0,
+  perfectDefense:0
+};
+
+
+let pendingMatchFormat = 3;
+let pendingEventType = null;
+let currentTeamDetailId = null;
+let archiveTeamFilter = null;
+let archiveReturnScreen = "home";
+let statsContext = null;
+let teamEditorId = null;
+let timeoutTimer = null;
+let timeoutRemaining = 0;
+
+
+function emptyStats(){
+
+  return {
+    ace:0,
+    spike:0,
+    tip:0,
+    block:0,
+    serveError:0,
+    attackError:0,
+    blockError:0,
+    foulPlus:0,
+    foulMinus:0,
+    receiveError:0,
+    perfectSet:0,
+    perfectDefense:0
+  };
+
+}
+
+
+function makeId(prefix){
+
+  if(
+    window.crypto &&
+    typeof window.crypto.randomUUID === "function"
+  ){
+    return `${prefix}_${window.crypto.randomUUID()}`;
+  }
+
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;
+
+}
+
+
+function clone(value){
+  return JSON.parse(JSON.stringify(value));
+}
+
+
+function normalizeStats(stats = {}){
+
+  const normalized = {
+    ...emptyStats()
+  };
+
+  Object.keys(normalized).forEach(key=>{
+    normalized[key] =
+      Number(stats[key]) || 0;
+  });
+
+  /*
+    Compatibilità con le statistiche
+    registrate dalla prima V5.
+  */
+
+  if(!stats.spike && stats.point){
+    normalized.spike +=
+      Number(stats.point) || 0;
+  }
+
+  if(!stats.perfectDefense && stats.dig){
+    normalized.perfectDefense +=
+      Number(stats.dig) || 0;
+  }
+
+  return normalized;
+
+}
+
+
+function createDefaultState(){
+
+  const players =
+    Array.from(
+      {length:6},
+      (_,index)=>({
+        id:makeId("player"),
+        num:index + 1,
+        name:`Giocatore ${index + 1}`
+      })
+    );
+
+  const team = {
+    id:makeId("team"),
+    name:"Squadra 1",
+    playerIds:players.map(
+      player=>player.id
+    )
+  };
+
+  return {
+    version:APP_VERSION,
+    players,
+    teams:[team],
+    currentMatch:null,
+    matchHistory:[]
+  };
+
+}
+
+
+function normalizeMatchPlayer(player){
+
+  return {
+    playerId:
+      player.playerId ||
+      player.id ||
+      makeId("player"),
+
+    name:
+      player.name ||
+      "Giocatore",
+
+    num:
+      player.num ?? "",
+
+    stats:
+      normalizeStats(player.stats)
+  };
+
+}
+
+
+function normalizeArchivedMatch(match){
+
+  return {
+    ...match,
+
+    id:
+      match.id ||
+      makeId("match"),
+
+    createdAt:
+      match.createdAt ||
+      new Date().toISOString(),
+
+    completedAt:
+      match.completedAt ||
+      match.createdAt ||
+      new Date().toISOString(),
+
+    teamId:
+      match.teamId ||
+      null,
+
+    opponentTeamId:
+      match.opponentTeamId ||
+      null,
+
+    ourTeamName:
+      match.ourTeamName ||
+      "Squadra",
+
+    opponentTeamName:
+      match.opponentTeamName ||
+      "Avversario",
+
+    matchFormat:
+      match.matchFormat === 5
+        ? 5
+        : 3,
+
+    setResults:
+      Array.isArray(match.setResults)
+        ? match.setResults
+        : [],
+
+    ourSets:
+      Number(match.ourSets) || 0,
+
+    theirSets:
+      Number(match.theirSets) || 0,
+
+    players:
+      Array.isArray(match.players)
+        ? match.players.map(normalizeMatchPlayer)
+        : [],
+
+    history:
+      Array.isArray(match.history)
+        ? match.history.map(event=>({
+            ...event,
+            before:null
+          }))
+        : []
+  };
+
+}
+
+
+function normalizeCurrentMatch(
+  match,
+  players = [],
+  teams = []
+){
+
+  const team =
+    teams.find(
+      item=>item.id === match.teamId
+    );
+
+  const roster =
+    Array.isArray(match.players)
+      ? match.players.map(normalizeMatchPlayer)
+      : (team?.playerIds || [])
+          .map(id=>
+            players.find(
+              player=>player.id === id
+            )
+          )
+          .filter(Boolean)
+          .map(player=>({
+            playerId:player.id,
+            name:player.name,
+            num:player.num,
+            stats:emptyStats()
+          }));
+
+  const activeIds =
+    Array.isArray(match.activePlayerIds)
+      ? match.activePlayerIds
+      : roster
+          .slice(0,6)
+          .map(player=>player.playerId);
+
+  return {
+
+    id:
+      match.id ||
+      makeId("match"),
+
+    createdAt:
+      match.createdAt ||
+      new Date().toISOString(),
+
+    completedAt:
+      match.completedAt ||
+      null,
+
+    status:
+      match.completedAt
+        ? "completed"
+        : "active",
+
+    teamId:
+      match.teamId ||
+      team?.id ||
+      null,
+
+    opponentTeamId:
+      match.opponentTeamId ||
+      null,
+
+    ourTeamName:
+      match.ourTeamName ||
+      team?.name ||
+      "Squadra",
+
+    opponentTeamName:
+      match.opponentTeamName &&
+      match.opponentTeamName !== "LORO"
+        ? match.opponentTeamName
+        : "Avversario",
+
+    ourScore:
+      Number(match.ourScore) || 0,
+
+    theirScore:
+      Number(match.theirScore) || 0,
+
+    ourSets:
+      Number(match.ourSets) || 0,
+
+    theirSets:
+      Number(match.theirSets) || 0,
+
+    setNumber:
+      Number(match.setNumber) || 1,
+
+    matchFormat:
+      match.matchFormat === 5
+        ? 5
+        : 3,
+
+    setResults:
+      Array.isArray(match.setResults)
+        ? match.setResults
+        : [],
+
+    ourTimeouts:
+      Number(match.ourTimeouts) || 0,
+
+    theirTimeouts:
+      Number(match.theirTimeouts) || 0,
+
+    players:
+      roster,
+
+    activePlayerIds:
+      activeIds.slice(0,6),
+
+    history:
+      Array.isArray(match.history)
+        ? match.history
+        : []
+
+  };
+
+}
+
+
+function migrateV4(raw){
+
+  if(
+    !raw ||
+    typeof raw !== "object"
+  ){
+    return createDefaultState();
+  }
+
+  const players =
+    (raw.players || [])
+      .map(player=>({
+        id:
+          player.id ||
+          makeId("player"),
+
+        num:
+          player.num ?? "",
+
+        name:
+          player.name ||
+          "Giocatore"
+      }));
+
+  const teams =
+    (raw.teams || [])
+      .map(team=>({
+        id:
+          team.id ||
+          makeId("team"),
+
+        name:
+          team.name ||
+          "Squadra",
+
+        playerIds:
+          Array.isArray(team.playerIds)
+            ? team.playerIds
+            : []
+      }));
+
+  const fallback =
+    createDefaultState();
+
+  const output = {
+
+    version:APP_VERSION,
+
+    players,
+
+    teams:
+      teams.length
+        ? teams
+        : fallback.teams,
+
+    currentMatch:null,
+
+    matchHistory:
+      Array.isArray(raw.matchHistory)
+        ? raw.matchHistory.map(normalizeArchivedMatch)
+        : []
+
+  };
+
+  if(raw.currentMatch){
+
+    output.currentMatch =
+      normalizeCurrentMatch(
+        raw.currentMatch,
+        players,
+        teams
+      );
+
+  }
+
+  return output;
+
+}
+
+
+function loadState(){
+
+  try{
+
+    const saved =
+      localStorage.getItem(STORAGE_KEY);
+
+    if(saved){
+
+      const raw =
+        JSON.parse(saved);
+
+      return migrateV4(raw);
+
+    }
+
+    const previous =
+      localStorage.getItem(PREVIOUS_KEY);
+
+    if(previous){
+
+      const migrated =
+        migrateV4(
+          JSON.parse(previous)
+        );
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(migrated)
+      );
+
+      return migrated;
+
+    }
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+  return createDefaultState();
+
+}
+
+
+let appState =
+  loadState();
+
+
+function save(){
+
+  appState.version =
+    APP_VERSION;
+
+  try{
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(appState)
+    );
+
+  }catch(error){
+
+    console.error(
+      "Salvataggio fallito",
+      error
+    );
+
+  }
+
+}
+
+
+function currentMatch(){
+  return appState.currentMatch;
+}
+
+
+function showScreen(name){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(screen=>
+      screen.classList.remove("active")
+    );
+
+  document
+    .getElementById(`screen-${name}`)
+    .classList
+    .add("active");
+
+  window.scrollTo(0,0);
+
+}
+
+
+function closeModal(id){
+
+  document
+    .getElementById(id)
+    .classList
+    .remove("open");
+
+}
+
+
+function openModal(id){
+
+  document
+    .getElementById(id)
+    .classList
+    .add("open");
+
+}
+
+
+function formatDate(iso){
+
+  try{
+
+    return new Intl.DateTimeFormat(
+      "it-IT",
+      {
+        dateStyle:"short",
+        timeStyle:"short"
+      }
+    ).format(
+      new Date(iso)
+    );
+
+  }catch{
+
+    return iso || "";
+
+  }
+
+}
+
+
+function escapeHtml(value){
+
+  return String(value ?? "")
+    .replace(
+      /[&<>'"]/g,
+      character=>({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        "'":"&#39;",
+        '"':"&quot;"
+      }[character])
+    );
+
+}
+
+
+function teamById(id){
+
+  return appState.teams.find(
+    team=>team.id === id
+  );
+
+}
+
+
+function playerById(id){
+
+  return appState.players.find(
+    player=>player.id === id
+  );
+
+}
+
+
+function setsNeededToWin(
+  match = currentMatch()
+){
+
+  return match?.matchFormat === 5
+    ? 3
+    : 2;
+
+}
+
+
+function isMatchWon(
+  match = currentMatch()
+){
+
+  return !!match &&
+    (
+      match.ourSets >= setsNeededToWin(match) ||
+      match.theirSets >= setsNeededToWin(match)
+    );
+
+}
+
+
+function currentSetTarget(
+  match = currentMatch()
+){
+
+  if(!match){
+    return 25;
+  }
+
+  const needed =
+    setsNeededToWin(match);
+
+  const decidingSet =
+    match.ourSets === needed - 1 &&
+    match.theirSets === needed - 1;
+
+  return decidingSet
+    ? 15
+    : 25;
+
+}
+
+
+function isSetWon(
+  match = currentMatch()
+){
+
+  if(!match){
+    return false;
+  }
+
+  return (
+    Math.max(
+      match.ourScore,
+      match.theirScore
+    ) >= currentSetTarget(match)
+    &&
+    Math.abs(
+      match.ourScore -
+      match.theirScore
+    ) >= 2
+  );
+
+}
+
+
+function snapshotMatch(){
+
+  const match =
+    currentMatch();
+
+  if(!match){
+    return null;
+  }
+
+  const {
+    history,
+    ...rest
+  } = match;
+
+  return clone(rest);
+
+}
+
+
+function pushHistory(
+  label,
+  before,
+  extra = {}
+){
+
+  const match =
+    currentMatch();
+
+  const now =
+    Date.now();
+
+  match.history.unshift({
+
+    id:
+      makeId("event"),
+
+    label,
+
+    time:
+      new Date(now)
+        .toLocaleTimeString(
+          "it-IT",
+          {
+            hour:"2-digit",
+            minute:"2-digit",
+            second:"2-digit"
+          }
+        ),
+
+    timestamp:
+      now,
+
+    setNumber:
+      match.setNumber,
+
+    score:
+      `${match.ourScore}-${match.theirScore}`,
+
+    before,
+
+    ...extra
+
+  });
+
+  if(match.history.length > 100){
+    match.history.length = 100;
+  }
+
+}
+
+
+function archiveCompletedMatch(){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    !match.completedAt
+  ){
+    return;
+  }
+
+  if(
+    appState.matchHistory
+      .some(
+        item=>item.id === match.id
+      )
+  ){
+    return;
+  }
+
+  const archived =
+    normalizeArchivedMatch({
+      ...clone(match),
+
+      history:
+        match.history.map(
+          ({
+            before,
+            ...event
+          })=>event
+        )
+    });
+
+  appState.matchHistory.unshift(
+    archived
+  );
+
+  save();
+
+}
+
+
+function handleSetWin(){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    isMatchWon(match) ||
+    !isSetWon(match)
+  ){
+    return;
+  }
+
+  match.setResults.push({
+
+    set:
+      match.setNumber,
+
+    ourScore:
+      match.ourScore,
+
+    theirScore:
+      match.theirScore,
+
+    completedAt:
+      new Date().toISOString()
+
+  });
+
+  if(
+    match.ourScore >
+    match.theirScore
+  ){
+    match.ourSets++;
+  }else{
+    match.theirSets++;
+  }
+
+  if(isMatchWon(match)){
+
+    match.status =
+      "completed";
+
+    match.completedAt =
+      new Date().toISOString();
+
+    archiveCompletedMatch();
+    renderLive();
+    openMatchEndModal();
+
+    return;
+
+  }
+
+  match.setNumber++;
+
+  match.ourScore = 0;
+  match.theirScore = 0;
+
+  match.ourTimeouts = 0;
+  match.theirTimeouts = 0;
+
+}
+
+
+function renderLive(){
+
+  const match =
+    currentMatch();
+
+  if(!match){
+    return;
+  }
+
+  document
+    .getElementById("ourTeamName")
+    .textContent =
+      match.ourTeamName;
+
+  document
+    .getElementById("theirTeamName")
+    .textContent =
+      match.opponentTeamName ||
+      "Avversario";
+
+  document
+    .getElementById("ourScore")
+    .textContent =
+      match.ourScore;
+
+  document
+    .getElementById("theirScore")
+    .textContent =
+      match.theirScore;
+
+  document
+    .getElementById("ourSets")
+    .textContent =
+      match.ourSets;
+
+  document
+    .getElementById("theirSets")
+    .textContent =
+      match.theirSets;
+
+  document
+    .getElementById("setNumber")
+    .textContent =
+      match.setNumber;
+
+  document
+    .getElementById("matchFormatLabel")
+    .textContent =
+      `Best of ${match.matchFormat}`;
+
+  document
+    .getElementById("setTargetLabel")
+    .textContent =
+      `Set a ${currentSetTarget(match)}`;
+
+  document
+    .getElementById("ourTimeouts")
+    .textContent =
+      match.ourTimeouts;
+
+  document
+    .getElementById("theirTimeouts")
+    .textContent =
+      match.theirTimeouts;
+
+  document
+    .getElementById("matchStatus")
+    .textContent =
+      isMatchWon(match)
+        ? "PARTITA TERMINATA"
+        : "";
+
+  document
+    .getElementById("liveStartedAt")
+    .textContent =
+      `Inizio ${formatDate(match.createdAt)}`;
+
+  save();
+
+}
+
+
+function showLive(){
+
+  if(!currentMatch()){
+
+    showScreen("home");
+    return;
+
+  }
+
+  renderLive();
+  showScreen("live");
+
+}
+
+
+function manualPoint(side){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    isMatchWon(match)
+  ){
+    return;
+  }
+
+  const before =
+    snapshotMatch();
+
+  if(side === "our"){
+
+    match.ourScore++;
+
+    pushHistory(
+      `Punto ${match.ourTeamName}`,
+      before,
+      {
+        type:"manualPoint",
+        side:"our"
+      }
+    );
+
+  }else{
+
+    match.theirScore++;
+
+    pushHistory(
+      `Punto ${match.opponentTeamName}`,
+      before,
+      {
+        type:"manualPoint",
+        side:"their"
+      }
+    );
+
+  }
+
+  handleSetWin();
+  renderLive();
+
+}
+
+
+function choosePlayerForEvent(type){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    isMatchWon(match)
+  ){
+    return;
+  }
+
+  pendingEventType =
+    type;
+
+  document
+    .getElementById("playerPickerTitle")
+    .textContent =
+      statLabels[type];
+
+  const activePlayers =
+    match.activePlayerIds
+      .map(id=>
+        match.players.find(
+          player=>
+            player.playerId === id
+        )
+      )
+      .filter(Boolean);
+
+  document
+    .getElementById("playerPickerGrid")
+    .innerHTML =
+      activePlayers.length
+        ?
+          activePlayers
+            .map(player=>`
+              <button
+                class="picker"
+                onclick="assignEventToPlayer('${player.playerId}')"
+              >
+                <strong>
+                  #${escapeHtml(player.num)}
+                  ${escapeHtml(player.name)}
+                </strong>
+
+                <span>
+                  ${statLabels[type]}
+                </span>
+
+              </button>
+            `)
+            .join("")
+        :
+          `<div class="empty">
+            Nessun giocatore in campo.
+          </div>`;
+
+  openModal("playerPickerModal");
+
+}
+
+
+function assignEventToPlayer(playerId){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    !pendingEventType ||
+    isMatchWon(match)
+  ){
+    return;
+  }
+
+  const player =
+    match.players.find(
+      item=>
+        item.playerId === playerId
+    );
+
+  if(!player){
+    return;
+  }
+
+  const before =
+    snapshotMatch();
+
+  player.stats[pendingEventType]++;
+
+  const effect =
+    scoreEffects[pendingEventType] || 0;
+
+  if(effect > 0){
+    match.ourScore++;
+  }
+
+  if(effect < 0){
+    match.theirScore++;
+  }
+
+  pushHistory(
+    `#${player.num} ${player.name} · ${statLabels[pendingEventType]}`,
+    before,
+    {
+      type:"stat",
+      stat:pendingEventType,
+      playerId
+    }
+  );
+
+  closeModal("playerPickerModal");
+
+  pendingEventType =
+    null;
+
+  handleSetWin();
+  renderLive();
+
+}
+
+
+function timeout(side){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    isMatchWon(match)
+  ){
+    return;
+  }
+
+  const before =
+    snapshotMatch();
+
+  if(side === "our"){
+
+    match.ourTimeouts++;
+
+    pushHistory(
+      `Timeout ${match.ourTeamName} (${match.ourTimeouts})`,
+      before,
+      {
+        type:"timeout",
+        side
+      }
+    );
+
+  }else{
+
+    match.theirTimeouts++;
+
+    pushHistory(
+      `Timeout ${match.opponentTeamName} (${match.theirTimeouts})`,
+      before,
+      {
+        type:"timeout",
+        side
+      }
+    );
+
+  }
+
+  startTimeoutCountdown(
+    side === "our"
+      ? match.ourTeamName
+      : match.opponentTeamName
+  );
+
+  renderLive();
+
+}
+
+
+function startTimeoutCountdown(label){
+
+  clearInterval(timeoutTimer);
+
+  timeoutRemaining =
+    60;
+
+  document
+    .getElementById("timeoutLabel")
+    .textContent =
+      `TIMEOUT · ${label}`;
+
+  document
+    .getElementById("timeoutSeconds")
+    .textContent =
+      timeoutRemaining;
+
+  document
+    .getElementById("timeoutBanner")
+    .classList
+    .add("open");
+
+  timeoutTimer =
+    setInterval(()=>{
+
+      timeoutRemaining--;
+
+      document
+        .getElementById("timeoutSeconds")
+        .textContent =
+          Math.max(
+            timeoutRemaining,
+            0
+          );
+
+      if(timeoutRemaining <= 0){
+
+        clearInterval(timeoutTimer);
+        timeoutTimer = null;
+
+      }
+
+    },1000);
+
+}
+
+
+function dismissTimeout(){
+
+  clearInterval(timeoutTimer);
+  timeoutTimer = null;
+
+  document
+    .getElementById("timeoutBanner")
+    .classList
+    .remove("open");
+
+}
+
+
+function undo(){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    !match.history.length
+  ){
+    return;
+  }
+
+  const last =
+    match.history[0];
+
+  if(!last.before){
+    return;
+  }
+
+  const remainingHistory =
+    match.history.slice(1);
+
+  appState.currentMatch = {
+    ...last.before,
+    history:remainingHistory
+  };
+
+  const archivedIndex =
+    appState.matchHistory
+      .findIndex(
+        item=>item.id === appState.currentMatch.id
+      );
+
+  if(archivedIndex >= 0){
+
+    appState.matchHistory.splice(
+      archivedIndex,
+      1
+    );
+
+  }
+
+  save();
+  renderLive();
+
+}
+
+
+function manualNewSet(){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    isMatchWon(match)
+  ){
+    return;
+  }
+
+  const confirmText =
+    "Chiudere manualmente il set corrente?";
+
+  if(!confirm(confirmText)){
+    return;
+  }
+
+  const before =
+    snapshotMatch();
+
+  match.setResults.push({
+
+    set:
+      match.setNumber,
+
+    ourScore:
+      match.ourScore,
+
+    theirScore:
+      match.theirScore,
+
+    manual:true,
+
+    completedAt:
+      new Date().toISOString()
+
+  });
+
+  if(
+    match.ourScore >
+    match.theirScore
+  ){
+    match.ourSets++;
+  }
+
+  if(
+    match.theirScore >
+    match.ourScore
+  ){
+    match.theirSets++;
+  }
+
+  pushHistory(
+    `Chiusura manuale set ${match.setNumber}`,
+    before,
+    {
+      type:"manualSet"
+    }
+  );
+
+  if(isMatchWon(match)){
+
+    match.status =
+      "completed";
+
+    match.completedAt =
+      new Date().toISOString();
+
+    archiveCompletedMatch();
+    renderLive();
+    openMatchEndModal();
+
+    return;
+
+  }
+
+  match.setNumber++;
+
+  match.ourScore = 0;
+  match.theirScore = 0;
+
+  match.ourTimeouts = 0;
+  match.theirTimeouts = 0;
+
+  renderLive();
+
+}
+
+
+function goHomeFromMatch(){
+
+  const match =
+    currentMatch();
+
+  if(
+    match &&
+    !isMatchWon(match)
+  ){
+
+    if(
+      !confirm(
+        "Attenzione: la partita è ancora in corso. Tornare comunque alla Home? I dati resteranno salvati."
+      )
+    ){
+      return;
+    }
+
+  }
+
+  showScreen("home");
+
+}
+
+
+function requestNewMatchFromLive(){
+
+  const match =
+    currentMatch();
+
+  if(
+    match &&
+    !isMatchWon(match)
+  ){
+
+    if(
+      !confirm(
+        "Attenzione, confermando perderai tutti i dati della partita in corso."
+      )
+    ){
+      return;
+    }
+
+  }
+
+  openNewMatchModal();
+
+}
+
+
+function openNewMatchModal(){
+
+  const ourSelect =
+    document
+      .getElementById("newMatchOurTeam");
+
+  const opponentSelect =
+    document
+      .getElementById("newMatchOpponentTeam");
+
+  ourSelect.innerHTML =
+    appState.teams
+      .map(team=>`
+        <option value="${team.id}">
+          ${escapeHtml(team.name)}
+        </option>
+      `)
+      .join("");
+
+  opponentSelect.innerHTML =
+    `<option value="">
+      Nessuna
+    </option>`
+    +
+    appState.teams
+      .map(team=>`
+        <option value="${team.id}">
+          ${escapeHtml(team.name)}
+        </option>
+      `)
+      .join("");
+
+  document
+    .getElementById("newMatchOpponentName")
+    .value =
+      "";
+
+  pendingMatchFormat =
+    3;
+
+  updateFormatButtons();
+
+  openModal("newMatchModal");
+
+}
+
+
+function selectMatchFormat(format){
+
+  pendingMatchFormat =
+    format;
+
+  updateFormatButtons();
+
+}
+
+
+function updateFormatButtons(){
+
+  document
+    .getElementById("format3Button")
+    .classList
+    .toggle(
+      "active",
+      pendingMatchFormat === 3
+    );
+
+  document
+    .getElementById("format5Button")
+    .classList
+    .toggle(
+      "active",
+      pendingMatchFormat === 5
+    );
+
+}
+
+
+function startNewMatch(){
+
+  const teamId =
+    document
+      .getElementById("newMatchOurTeam")
+      .value;
+
+  const team =
+    teamById(teamId);
+
+  if(!team){
+
+    alert(
+      "Seleziona una squadra."
+    );
+
+    return;
+
+  }
+
+  const opponentTeamId =
+    document
+      .getElementById("newMatchOpponentTeam")
+      .value ||
+      null;
+
+  const opponentTeam =
+    opponentTeamId
+      ? teamById(opponentTeamId)
+      : null;
+
+  const customOpponent =
+    document
+      .getElementById("newMatchOpponentName")
+      .value
+      .trim();
+
+  const opponentName =
+    opponentTeam
+      ? opponentTeam.name
+      : customOpponent ||
+        "Avversario";
+
+  const roster =
+    team.playerIds
+      .map(id=>playerById(id))
+      .filter(Boolean)
+      .map(player=>({
+        playerId:player.id,
+        name:player.name,
+        num:player.num,
+        stats:emptyStats()
+      }));
+
+  appState.currentMatch = {
+
+    id:
+      makeId("match"),
+
+    createdAt:
+      new Date().toISOString(),
+
+    completedAt:null,
+
+    status:"active",
+
+    teamId:
+      team.id,
+
+    opponentTeamId,
+
+    ourTeamName:
+      team.name,
+
+    opponentTeamName:
+      opponentName,
+
+    ourScore:0,
+    theirScore:0,
+
+    ourSets:0,
+    theirSets:0,
+
+    setNumber:1,
+
+    matchFormat:
+      pendingMatchFormat,
+
+    setResults:[],
+
+    ourTimeouts:0,
+    theirTimeouts:0,
+
+    players:
+      roster,
+
+    activePlayerIds:
+      roster
+        .slice(0,6)
+        .map(
+          player=>player.playerId
+        ),
+
+    history:[]
+
+  };
+
+  closeModal("newMatchModal");
+
+  save();
+  showLive();
+
+}
+
+
+function showLiveLog(){
+
+  renderLog();
+  showScreen("log");
+
+}
+
+
+function renderLog(){
+
+  const match =
+    currentMatch();
+
+  const container =
+    document
+      .getElementById("logList");
+
+  if(
+    !match ||
+    !match.history.length
+  ){
+
+    container.innerHTML =
+      `<div class="empty">
+        Nessun evento.
+      </div>`;
+
+    return;
+
+  }
+
+  container.innerHTML =
+    match.history
+      .map(event=>`
+        <div class="event">
+
+          <span>
+            ${escapeHtml(event.label)}
+          </span>
+
+          <span class="small">
+            ${escapeHtml(event.time)}
+          </span>
+
+        </div>
+      `)
+      .join("");
+
+}
+
+
+function showRoster(){
+
+  renderRoster();
+  showScreen("roster");
+
+}
+
+
+function renderRoster(){
+
+  const match =
+    currentMatch();
+
+  if(!match){
+    return;
+  }
+
+  const active =
+    match.players
+      .filter(player=>
+        match.activePlayerIds
+          .includes(player.playerId)
+      );
+
+  const bench =
+    match.players
+      .filter(player=>
+        !match.activePlayerIds
+          .includes(player.playerId)
+      );
+
+  document
+    .getElementById("activePlayers")
+    .innerHTML =
+      active
+        .map(rosterPlayerHtml)
+        .join("");
+
+  document
+    .getElementById("benchPlayers")
+    .innerHTML =
+      bench
+        .map(rosterPlayerHtml)
+        .join("");
+
+  document
+    .querySelectorAll(".roster-player")
+    .forEach(element=>{
+
+      element.draggable =
+        true;
+
+      element.addEventListener(
+        "dragstart",
+        ()=>{
+
+          element
+            .classList
+            .add("dragging");
+
+          window.__dragPlayerId =
+            element.dataset.id;
+
+        }
+      );
+
+      element.addEventListener(
+        "dragend",
+        ()=>{
+
+          element
+            .classList
+            .remove("dragging");
+
+        }
+      );
+
+      element.addEventListener(
+        "click",
+        ()=>toggleRosterPlayer(
+          element.dataset.id
+        )
+      );
+
+    });
+
+  document
+    .querySelectorAll(".roster-zone")
+    .forEach(zone=>{
+
+      zone.ondragover =
+        event=>event.preventDefault();
+
+      zone.ondrop =
+        event=>{
+
+          event.preventDefault();
+
+          moveRosterPlayer(
+            window.__dragPlayerId,
+            zone.dataset.zone
+          );
+
+        };
+
+    });
+
+}
+
+
+function rosterPlayerHtml(player){
+
+  return `
+    <div
+      class="roster-player"
+      data-id="${player.playerId}"
+    >
+
+      <b>
+        #${escapeHtml(player.num)}
+        ${escapeHtml(player.name)}
+      </b>
+
+      <div class="small">
+        Tocca o trascina
+      </div>
+
+    </div>
+  `;
+
+}
+
+
+function toggleRosterPlayer(id){
+
+  const match =
+    currentMatch();
+
+  if(!match){
+    return;
+  }
+
+  moveRosterPlayer(
+    id,
+    match.activePlayerIds.includes(id)
+      ? "bench"
+      : "active"
+  );
+
+}
+
+
+function moveRosterPlayer(
+  id,
+  zone
+){
+
+  const match =
+    currentMatch();
+
+  if(
+    !match ||
+    isMatchWon(match)
+  ){
+    return;
+  }
+
+  const isActive =
+    match.activePlayerIds
+      .includes(id);
+
+  if(
+    zone === "active" &&
+    !isActive &&
+    match.activePlayerIds.length >= 6
+  ){
+
+    alert(
+      "Puoi avere al massimo 6 giocatori in campo."
+    );
+
+    return;
+
+  }
+
+  if(
+    (
+      zone === "active" &&
+      isActive
+    )
+    ||
+    (
+      zone === "bench" &&
+      !isActive
+    )
+  ){
+    return;
+  }
+
+  const before =
+    snapshotMatch();
+
+  const player =
+    match.players.find(
+      item=>item.playerId === id
+    );
+
+  if(zone === "active"){
+
+    match.activePlayerIds.push(id);
+
+  }else{
+
+    match.activePlayerIds =
+      match.activePlayerIds
+        .filter(
+          playerId=>
+            playerId !== id
+        );
+
+  }
+
+  pushHistory(
+    `${
+      player
+        ? `#${player.num} ${player.name}`
+        : "Giocatore"
+    } · ${
+      zone === "active"
+        ? "entra in campo"
+        : "va in panchina"
+    }`,
+    before,
+    {
+      type:"substitution",
+      playerId:id,
+      action:zone
+    }
+  );
+
+  save();
+  renderRoster();
+
+}
+
+
+function showTeams(){
+
+  renderTeams();
+  showScreen("teams");
+
+}
+
+
+function renderTeams(){
+
+  document
+    .getElementById("teamsList")
+    .innerHTML =
+      appState.teams.length
+        ?
+          appState.teams
+            .map(team=>`
+              <div class="team-row">
+
+                <button
+                  class="card clickable"
+                  onclick="openTeamDetail('${team.id}')"
+                >
+
+                  <div class="card-title">
+                    ${escapeHtml(team.name)}
+                  </div>
+
+                  <div class="card-meta">
+                    ${team.playerIds.length} giocatori
+                  </div>
+
+                </button>
+
+              </div>
+            `)
+            .join("")
+        :
+          `<div class="empty">
+            Nessuna squadra.
+          </div>`;
+
+}
+
+
+function openTeamDetail(id){
+
+  const team =
+    teamById(id);
+
+  if(!team){
+    return;
+  }
+
+  currentTeamDetailId =
+    id;
+
+  document
+    .getElementById("teamDetailName")
+    .textContent =
+      team.name;
+
+  document
+    .getElementById("teamDetailMeta")
+    .textContent =
+      `${team.playerIds.length} giocatori`;
+
+  showScreen("team-detail");
+
+}
+
+
+function openTeamEditor(id = null){
+
+  teamEditorId =
+    id;
+
+  const team =
+    id
+      ? teamById(id)
+      : null;
+
+  document
+    .getElementById("teamEditorTitle")
+    .textContent =
+      team
+        ? "Gestisci squadra"
+        : "Nuova squadra";
+
+  document
+    .getElementById("teamNameInput")
+    .value =
+      team?.name || "";
+
+  renderPlayerPoolChecks(
+    team?.playerIds || []
+  );
+
+  document
+    .getElementById("newPlayerNum")
+    .value =
+      "";
+
+  document
+    .getElementById("newPlayerName")
+    .value =
+      "";
+
+  openModal("teamEditorModal");
+
+}
+
+
+function editCurrentTeam(){
+
+  openTeamEditor(
+    currentTeamDetailId
+  );
+
+}
+
+
+function openRenameTeamModal(){
+
+  const team =
+    teamById(
+      currentTeamDetailId
+    );
+
+  if(!team){
+    return;
+  }
+
+  document
+    .getElementById("renameTeamInput")
+    .value =
+      team.name;
+
+  openModal("renameTeamModal");
+
+}
+
+
+function saveRenamedTeam(){
+
+  const team =
+    teamById(
+      currentTeamDetailId
+    );
+
+  if(!team){
+    return;
+  }
+
+  const name =
+    document
+      .getElementById("renameTeamInput")
+      .value
+      .trim();
+
+  if(!name){
+
+    alert(
+      "Inserisci un nome squadra."
+    );
+
+    return;
+
+  }
+
+  team.name =
+    name;
+
+  save();
+
+  closeModal("renameTeamModal");
+
+  openTeamDetail(
+    team.id
+  );
+
+}
+
+
+function renderPlayerPoolChecks(
+  selectedIds = []
+){
+
+  const selected =
+    new Set(selectedIds);
+
+  document
+    .getElementById("playerPoolChecks")
+    .innerHTML =
+      appState.players.length
+        ?
+          appState.players
+            .map(player=>`
+              <label class="check-item">
+
+                <input
+                  type="checkbox"
+                  class="pool-check"
+                  value="${player.id}"
+                  ${
+                    selected.has(player.id)
+                      ? "checked"
+                      : ""
+                  }
+                >
+
+                <span>
+                  <b>
+                    #${escapeHtml(player.num)}
+                    ${escapeHtml(player.name)}
+                  </b>
+                </span>
+
+              </label>
+            `)
+            .join("")
+        :
+          `<div class="empty">
+            Il pool è vuoto.
+          </div>`;
+
+}
+
+
+function addPlayerFromEditor(){
+
+  const name =
+    document
+      .getElementById("newPlayerName")
+      .value
+      .trim();
+
+  const num =
+    document
+      .getElementById("newPlayerNum")
+      .value
+      .trim();
+
+  if(!name){
+
+    alert(
+      "Inserisci il nome."
+    );
+
+    return;
+
+  }
+
+  const player = {
+    id:makeId("player"),
+    name,
+    num:num || ""
+  };
+
+  appState.players.push(
+    player
+  );
+
+  save();
+
+  const checked =
+    [
+      ...document
+        .querySelectorAll(
+          ".pool-check:checked"
+        )
+    ]
+      .map(
+        input=>input.value
+      );
+
+  checked.push(
+    player.id
+  );
+
+  renderPlayerPoolChecks(
+    checked
+  );
+
+  document
+    .getElementById("newPlayerName")
+    .value =
+      "";
+
+  document
+    .getElementById("newPlayerNum")
+    .value =
+      "";
+
+}
+
+
+function saveTeamEditor(){
+
+  const name =
+    document
+      .getElementById("teamNameInput")
+      .value
+      .trim();
+
+  if(!name){
+
+    alert(
+      "Inserisci un nome squadra."
+    );
+
+    return;
+
+  }
+
+  const ids =
+    [
+      ...document
+        .querySelectorAll(
+          ".pool-check:checked"
+        )
+    ]
+      .map(
+        input=>input.value
+      );
+
+  if(ids.length > 20){
+
+    alert(
+      "Massimo 20 giocatori per squadra."
+    );
+
+    return;
+
+  }
+
+  if(teamEditorId){
+
+    const team =
+      teamById(teamEditorId);
+
+    team.name =
+      name;
+
+    team.playerIds =
+      ids;
+
+  }else{
+
+    const team = {
+      id:makeId("team"),
+      name,
+      playerIds:ids
+    };
+
+    appState.teams.push(
+      team
+    );
+
+    currentTeamDetailId =
+      team.id;
+
+  }
+
+  save();
+
+  closeModal("teamEditorModal");
+
+  showTeams();
+
+}
+
+
+function deleteCurrentTeam(){
+
+  const team =
+    teamById(
+      currentTeamDetailId
+    );
+
+  if(!team){
+    return;
+  }
+
+  if(
+    !confirm(
+      `Sei sicuro di voler eliminare “${team.name}”? Le partite e le statistiche già salvate saranno conservate.`
+    )
+  ){
+    return;
+  }
+
+  appState.teams =
+    appState.teams.filter(
+      item=>item.id !== team.id
+    );
+
+  save();
+
+  currentTeamDetailId =
+    null;
+
+  showTeams();
+
+}
+
+
+function showArchive(){
+
+  archiveTeamFilter =
+    null;
+
+  archiveReturnScreen =
+    "home";
+
+  renderArchive();
+  showScreen("archive");
+
+}
+
+
+function showTeamArchive(){
+
+  archiveTeamFilter =
+    currentTeamDetailId;
+
+  archiveReturnScreen =
+    "team-detail";
+
+  renderArchive();
+  showScreen("archive");
+
+}
+
+
+function renderArchive(){
+
+  const matches =
+    archiveTeamFilter
+      ?
+        appState.matchHistory
+          .filter(
+            match=>
+              match.teamId === archiveTeamFilter ||
+              match.opponentTeamId === archiveTeamFilter
+          )
+      :
+        appState.matchHistory;
+
+  document
+    .getElementById("archiveSubtitle")
+    .textContent =
+      archiveTeamFilter
+        ?
+          `Filtro: ${
+            teamById(archiveTeamFilter)?.name ||
+            "squadra"
+          }`
+        :
+          `${matches.length} partite salvate`;
+
+  document
+    .getElementById("archiveList")
+    .innerHTML =
+      matches.length
+        ?
+          matches
+            .map(match=>`
+              <div class="team-row">
+
+                <button
+                  class="card clickable"
+                  onclick="showStats('archive','${match.id}')"
+                >
+
+                  <div class="card-title">
+                    ${escapeHtml(match.ourTeamName)}
+                    vs
+                    ${escapeHtml(match.opponentTeamName)}
+                  </div>
+
+                  <div class="card-meta">
+                    ${formatDate(match.createdAt)}
+                    ·
+                    ${match.ourSets}-${match.theirSets}
+                  </div>
+
+                </button>
+
+                <button
+                  class="delete-mini"
+                  onclick="deleteArchivedMatch('${match.id}')"
+                >
+                  🗑
+                </button>
+
+              </div>
+            `)
+            .join("")
+        :
+          `<div class="empty">
+            Nessuna partita salvata.
+          </div>`;
+
+}
+
+
+function deleteArchivedMatch(id){
+
+  const match =
+    appState.matchHistory.find(
+      item=>item.id === id
+    );
+
+  if(!match){
+    return;
+  }
+
+  if(
+    !confirm(
+      `Eliminare ${match.ourTeamName} vs ${match.opponentTeamName} dall'archivio?`
+    )
+  ){
+    return;
+  }
+
+  appState.matchHistory =
+    appState.matchHistory.filter(
+      item=>item.id !== id
+    );
+
+  save();
+  renderArchive();
+
+}
+
+
+function archiveBack(){
+
+  showScreen(
+    archiveReturnScreen
+  );
+
+}
+
+
+function getStatsMatch(){
+
+  if(
+    statsContext?.type === "live"
+  ){
+    return currentMatch();
+  }
+
+  if(
+    statsContext?.type === "archive"
+  ){
+
+    return appState.matchHistory
+      .find(
+        match=>
+          match.id === statsContext.matchId
+      );
+
+  }
+
+  return null;
+
+}
+
+
+function showStats(
+  type,
+  matchId = null
+){
+
+  statsContext = {
+    type,
+    matchId,
+    returnScreen:
+      type === "live"
+        ? "live"
+        : "archive"
+  };
+
+  renderStatsScreen();
+  showScreen("stats");
+
+}
+
+
+function calculateMatchDurations(match){
+
+  const events =
+    (match.history || [])
+      .filter(event=>
+        Number.isFinite(
+          Number(event.timestamp)
+        )
+      )
+      .map(event=>({
+        ...event,
+        timestamp:Number(event.timestamp)
+      }));
+
+  if(!events.length){
+
+    return {
+      match:null,
+      sets:{}
+    };
+
+  }
+
+  const timestamps =
+    events.map(
+      event=>event.timestamp
+    );
+
+  const matchDuration =
+    Math.max(...timestamps)
+    -
+    Math.min(...timestamps);
+
+  const sets = {};
+
+  events.forEach(event=>{
+
+    const setNumber =
+      Number(event.setNumber) || 1;
+
+    if(!sets[setNumber]){
+      sets[setNumber] = [];
+    }
+
+    sets[setNumber]
+      .push(event.timestamp);
+
+  });
+
+  Object
+    .keys(sets)
+    .forEach(setNumber=>{
+
+      const timestamps =
+        sets[setNumber];
+
+      sets[setNumber] =
+        timestamps.length > 1
+          ?
+            Math.max(...timestamps)
+            -
+            Math.min(...timestamps)
+          :
+            0;
+
+    });
+
+  return {
+    match:matchDuration,
+    sets
+  };
+
+}
+
+
+function formatDuration(milliseconds){
+
+  if(
+    milliseconds == null ||
+    !Number.isFinite(milliseconds)
+  ){
+    return "—";
+  }
+
+  const totalSeconds =
+    Math.max(
+      0,
+      Math.floor(
+        milliseconds / 1000
+      )
+    );
+
+  const hours =
+    Math.floor(
+      totalSeconds / 3600
+    );
+
+  const minutes =
+    Math.floor(
+      (totalSeconds % 3600) / 60
+    );
+
+  const seconds =
+    totalSeconds % 60;
+
+  if(hours){
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  if(minutes){
+    return `${minutes}m ${seconds}s`;
+  }
+
+  return `${seconds}s`;
+
+}
+
+
+function aggregateStats(players){
+
+  const totals =
+    emptyStats();
+
+  players.forEach(player=>{
+
+    Object
+      .keys(totals)
+      .forEach(key=>{
+
+        totals[key] +=
+          Number(
+            player.stats?.[key]
+          ) || 0;
+
+      });
+
+  });
+
+  return totals;
+
+}
+
+
+function renderStatsScreen(){
+
+  const match =
+    getStatsMatch();
+
+  if(!match){
+    return;
+  }
+
+  document
+    .getElementById("statsSubtitle")
+    .textContent =
+      `${match.ourTeamName} vs ${match.opponentTeamName} · ${formatDate(match.createdAt)}`;
+
+  document
+    .getElementById("statsResult")
+    .textContent =
+      `${match.ourSets} - ${match.theirSets}`;
+
+  const durations =
+    calculateMatchDurations(match);
+
+  document
+    .getElementById("statsSets")
+    .innerHTML =
+      `Durata partita: ${formatDuration(durations.match)}<br>`
+      +
+      (
+        match.setResults.length
+          ?
+            match.setResults
+              .map(result=>
+                `Set ${result.set}: ${result.ourScore}-${result.theirScore}${result.manual ? " *" : ""} · ${formatDuration(durations.sets[result.set])}`
+              )
+              .join("<br>")
+          :
+            "Nessun set concluso"
+      );
+
+  const totals =
+    aggregateStats(
+      match.players || []
+    );
+
+  document
+    .getElementById("generalStats")
+    .innerHTML =
+      Object
+        .entries(statLabels)
+        .map(
+          ([key,label])=>`
+            <div class="metric">
+              <b>${totals[key] || 0}</b>
+              <span class="small">${label}</span>
+            </div>
+          `
+        )
+        .join("");
+
+  document
+    .getElementById("playerStats")
+    .innerHTML =
+      (match.players || []).length
+        ?
+          (match.players || [])
+            .map(player=>`
+              <div class="player-stat">
+
+                <div class="player-stat-title">
+                  #${escapeHtml(player.num)}
+                  ${escapeHtml(player.name)}
+                </div>
+
+                <div class="small">
+                  ${
+                    Object
+                      .entries(statLabels)
+                      .map(
+                        ([key,label])=>
+                          `${label} ${player.stats?.[key] || 0}`
+                      )
+                      .join(" · ")
+                  }
+                </div>
+
+              </div>
+            `)
+            .join("")
+        :
+          `<div class="empty">
+            Nessun giocatore.
+          </div>`;
+
+}
+
+
+function statsBack(){
+
+  showScreen(
+    statsContext?.returnScreen ||
+    "home"
+  );
+
+}
+
+
+function csvCell(value){
+
+  const string =
+    String(value ?? "");
+
+  return /[;"\n]/.test(string)
+    ?
+      `"${string.replace(/"/g,'""')}"`
+    :
+      string;
+
+}
+
+
+function exportStatsCsv(){
+
+  const match =
+    getStatsMatch();
+
+  if(!match){
+    return;
+  }
+
+  const durations =
+    calculateMatchDurations(match);
+
+  const rows = [
+
+    ["VOLLEY BENCH"],
+
+    ["Squadra",match.ourTeamName],
+
+    ["Avversario",match.opponentTeamName],
+
+    ["Data",formatDate(match.createdAt)],
+
+    ["Risultato",`${match.ourSets}-${match.theirSets}`],
+
+    ["Durata partita",formatDuration(durations.match)],
+
+    [],
+
+    ["SET","PUNTEGGIO","DURATA"],
+
+    ...match.setResults.map(
+      result=>[
+        `Set ${result.set}`,
+        `${result.ourScore}-${result.theirScore}`,
+        formatDuration(
+          durations.sets[result.set]
+        )
+      ]
+    ),
+
+    [],
+
+    [
+      "GIOCATORE",
+      "NUMERO",
+      ...Object.values(statLabels)
+    ],
+
+    ...(match.players || [])
+      .map(player=>[
+        player.name,
+        player.num,
+        ...Object
+          .keys(statLabels)
+          .map(
+            key=>
+              player.stats?.[key] || 0
+          )
+      ])
+
+  ];
+
+  const csv =
+    "\ufeff"
+    +
+    rows
+      .map(
+        row=>
+          row
+            .map(csvCell)
+            .join(";")
+      )
+      .join("\n");
+
+  downloadBlob(
+    csv,
+    `volleybench_${safeFileName(match.ourTeamName)}_${new Date(match.createdAt).toISOString().slice(0,10)}.csv`,
+    "text/csv;charset=utf-8"
+  );
+
+}
+
+
+function exportStatsTxt(){
+
+  const match =
+    getStatsMatch();
+
+  if(!match){
+    return;
+  }
+
+  const durations =
+    calculateMatchDurations(match);
+
+  const lines = [
+
+    "VOLLEY BENCH",
+
+    `${match.ourTeamName} vs ${match.opponentTeamName}`,
+
+    formatDate(match.createdAt),
+
+    `Risultato: ${match.ourSets}-${match.theirSets}`,
+
+    `Durata: ${formatDuration(durations.match)}`,
+
+    "",
+
+    ...match.setResults.map(
+      result=>
+        `Set ${result.set}: ${result.ourScore}-${result.theirScore} · ${formatDuration(durations.sets[result.set])}`
+    ),
+
+    "",
+
+    "STATISTICHE GIOCATORI",
+
+    ...(match.players || [])
+      .map(player=>
+        `#${player.num} ${player.name} | ${
+          Object
+            .entries(statLabels)
+            .map(
+              ([key,label])=>
+                `${label} ${player.stats?.[key] || 0}`
+            )
+            .join(" | ")
+        }`
+      )
+
+  ];
+
+  downloadBlob(
+    lines.join("\n"),
+    `volleybench_${safeFileName(match.ourTeamName)}_${new Date(match.createdAt).toISOString().slice(0,10)}.txt`,
+    "text/plain;charset=utf-8"
+  );
+
+}
+
+
+function teamMatches(teamId){
+
+  /*
+    Le statistiche tecniche vengono raccolte
+    solo per la squadra controllata.
+    Per questo contiamo le partite dove
+    la squadra è teamId, non quelle in cui
+    compare semplicemente come avversario.
+  */
+
+  return appState.matchHistory
+    .filter(
+      match=>
+        match.teamId === teamId
+    );
+
+}
+
+
+function getTeamAggregate(teamId){
+
+  const matches =
+    teamMatches(teamId);
+
+  const totals =
+    emptyStats();
+
+  const players =
+    new Map();
+
+  let wins = 0;
+  let losses = 0;
+  let setsWon = 0;
+  let setsLost = 0;
+
+  matches.forEach(match=>{
+
+    if(
+      match.ourSets >
+      match.theirSets
+    ){
+      wins++;
+    }
+
+    if(
+      match.theirSets >
+      match.ourSets
+    ){
+      losses++;
+    }
+
+    setsWon +=
+      Number(match.ourSets) || 0;
+
+    setsLost +=
+      Number(match.theirSets) || 0;
+
+    (match.players || [])
+      .forEach(player=>{
+
+        const id =
+          player.playerId ||
+          player.id ||
+          player.name;
+
+        let aggregate =
+          players.get(id);
+
+        if(!aggregate){
+
+          aggregate = {
+            playerId:id,
+            name:player.name,
+            num:player.num,
+            stats:emptyStats(),
+            matches:0
+          };
+
+          players.set(
+            id,
+            aggregate
+          );
+
+        }
+
+        aggregate.matches++;
+
+        Object
+          .keys(totals)
+          .forEach(key=>{
+
+            const value =
+              Number(
+                player.stats?.[key]
+              ) || 0;
+
+            aggregate.stats[key] +=
+              value;
+
+            totals[key] +=
+              value;
+
+          });
+
+      });
+
+  });
+
+  return {
+    matches,
+    wins,
+    losses,
+    setsWon,
+    setsLost,
+    totals,
+    players:[
+      ...players.values()
+    ]
+  };
+
+}
+
+
+function showTeamGeneralStats(){
+
+  renderTeamGeneralStats();
+  showScreen("team-stats");
+
+}
+
+
+function renderTeamGeneralStats(){
+
+  const team =
+    teamById(
+      currentTeamDetailId
+    );
+
+  if(!team){
+    return;
+  }
+
+  const aggregate =
+    getTeamAggregate(
+      team.id
+    );
+
+  document
+    .getElementById("teamStatsSubtitle")
+    .textContent =
+      `${team.name} · ${aggregate.matches.length} partite`;
+
+  document
+    .getElementById("teamGeneralStats")
+    .innerHTML =
+      [
+        ["Partite",aggregate.matches.length],
+        ["Vittorie",aggregate.wins],
+        ["Sconfitte",aggregate.losses],
+        ["Set vinti",aggregate.setsWon],
+        ["Set persi",aggregate.setsLost]
+      ]
+        .map(
+          ([label,value])=>`
+            <div class="metric">
+              <b>${value}</b>
+              <span class="small">${label}</span>
+            </div>
+          `
+        )
+        .join("");
+
+  document
+    .getElementById("teamEventStats")
+    .innerHTML =
+      Object
+        .entries(statLabels)
+        .map(
+          ([key,label])=>`
+            <div class="metric">
+              <b>${aggregate.totals[key] || 0}</b>
+              <span class="small">${label}</span>
+            </div>
+          `
+        )
+        .join("");
+
+  document
+    .getElementById("teamPlayerStats")
+    .innerHTML =
+      aggregate.players.length
+        ?
+          aggregate.players
+            .map(player=>`
+              <div class="player-stat">
+
+                <div class="player-stat-title">
+                  #${escapeHtml(player.num)}
+                  ${escapeHtml(player.name)}
+                  ·
+                  ${player.matches} partite
+                </div>
+
+                <div class="small">
+                  ${
+                    Object
+                      .entries(statLabels)
+                      .map(
+                        ([key,label])=>
+                          `${label} ${player.stats[key] || 0}`
+                      )
+                      .join(" · ")
+                  }
+                </div>
+
+              </div>
+            `)
+            .join("")
+        :
+          `<div class="empty">
+            Nessuna statistica disponibile.
+          </div>`;
+
+}
+
+
+function exportTeamStatsCsv(){
+
+  const team =
+    teamById(
+      currentTeamDetailId
+    );
+
+  if(!team){
+    return;
+  }
+
+  const aggregate =
+    getTeamAggregate(
+      team.id
+    );
+
+  const rows = [
+
+    ["VOLLEY BENCH - STATISTICHE GENERALI"],
+
+    ["Squadra",team.name],
+
+    ["Partite",aggregate.matches.length],
+
+    ["Vittorie",aggregate.wins],
+
+    ["Sconfitte",aggregate.losses],
+
+    ["Set vinti",aggregate.setsWon],
+
+    ["Set persi",aggregate.setsLost],
+
+    [],
+
+    ["EVENTO","TOTALE"],
+
+    ...Object
+      .entries(statLabels)
+      .map(
+        ([key,label])=>[
+          label,
+          aggregate.totals[key] || 0
+        ]
+      ),
+
+    [],
+
+    [
+      "GIOCATORE",
+      "NUMERO",
+      "PARTITE",
+      ...Object.values(statLabels)
+    ],
+
+    ...aggregate.players
+      .map(player=>[
+        player.name,
+        player.num,
+        player.matches,
+        ...Object
+          .keys(statLabels)
+          .map(
+            key=>
+              player.stats[key] || 0
+          )
+      ])
+
+  ];
+
+  const csv =
+    "\ufeff"
+    +
+    rows
+      .map(
+        row=>
+          row
+            .map(csvCell)
+            .join(";")
+      )
+      .join("\n");
+
+  downloadBlob(
+    csv,
+    `volleybench_${safeFileName(team.name)}_statistiche-generali.csv`,
+    "text/csv;charset=utf-8"
+  );
+
+}
+
+
+function exportBackupJson(){
+
+  downloadBlob(
+    JSON.stringify(
+      appState,
+      null,
+      2
+    ),
+    `volleybench-backup-${new Date().toISOString().slice(0,10)}.json`,
+    "application/json"
+  );
+
+}
+
+
+function downloadBlob(
+  content,
+  name,
+  type
+){
+
+  const blob =
+    new Blob(
+      [content],
+      {type}
+    );
+
+  const url =
+    URL.createObjectURL(blob);
+
+  const anchor =
+    document.createElement("a");
+
+  anchor.href =
+    url;
+
+  anchor.download =
+    name;
+
+  document.body
+    .appendChild(anchor);
+
+  anchor.click();
+  anchor.remove();
+
+  setTimeout(
+    ()=>URL.revokeObjectURL(url),
+    500
+  );
+
+}
+
+
+function safeFileName(value){
+
+  return String(value)
+    .toLowerCase()
+    .replace(
+      /[^a-z0-9à-ÿ]+/gi,
+      "-"
+    )
+    .replace(
+      /^-|-$/g,
+      ""
+    );
+
+}
+
+
+function openMatchEndModal(){
+
+  const match =
+    currentMatch();
+
+  if(!match){
+    return;
+  }
+
+  document
+    .getElementById("matchEndTitle")
+    .textContent =
+      match.ourSets >
+      match.theirSets
+        ? "VITTORIA"
+        : "SCONFITTA";
+
+  document
+    .getElementById("matchEndScore")
+    .textContent =
+      `${match.ourSets} - ${match.theirSets}`;
+
+  document
+    .getElementById("matchEndSets")
+    .innerHTML =
+      match.setResults
+        .map(
+          result=>
+            `Set ${result.set} · ${result.ourScore}-${result.theirScore}`
+        )
+        .join("<br>");
+
+  openModal(
+    "matchEndModal"
+  );
+
+}
+
+
+function closeMatchEndAndLive(){
+
+  closeModal(
+    "matchEndModal"
+  );
+
+  showLive();
+
+}
+
+
+function showStatsFromEnd(){
+
+  closeModal(
+    "matchEndModal"
+  );
+
+  showStats(
+    "live"
+  );
+
+}
+
+
+function restartFromMatchEnd(){
+
+  closeModal(
+    "matchEndModal"
+  );
+
+  openNewMatchModal();
+
+}
+
+
+/* BOOT */
+
+save();
+showScreen("home");
+
 </script>
+
 </body>
 </html>
